@@ -3,6 +3,7 @@ from collections import OrderedDict
 from copy import deepcopy
 import gym
 from gym_minigrid.roomgrid import RoomGrid
+from gym_minigrid.minigrid import Door
 from .verifier import *
 
 
@@ -92,7 +93,7 @@ class RoomGridLevel(RoomGrid):
                 continue
 
             except RejectSampling as error:
-                #print('Sampling rejected:', error)
+                print('Sampling rejected:', error)
                 continue
 
             break
@@ -100,6 +101,59 @@ class RoomGridLevel(RoomGrid):
         # Generate the surface form for the instructions
         self.surface = self.instrs.surface(self)
         self.mission = self.surface
+
+    # def add_door(self, i, j, door_idx=None, color=None, locked=None, door_loc_x=None, door_loc_y=None):
+    #     """
+    #     Add a door to a room, connecting it to a neighbor
+    #     """
+    #
+    #     room = self.get_room(i, j)
+    #
+    #     if door_idx == None:
+    #         # Need to make sure that there is a neighbor along this wall
+    #         # and that there is not already a door
+    #         while True:
+    #             door_idx = self._rand_int(0, 4)
+    #             if room.neighbors[door_idx] and room.doors[door_idx] is None:
+    #                 break
+    #
+    #     if color == None:
+    #         color = self._rand_color()
+    #
+    #     if locked is None:
+    #         locked = self._rand_bool()
+    #
+    #     assert room.doors[door_idx] is None, "door already exists"
+    #
+    #     room.locked = locked
+    #     door = Door(color, is_locked=locked)
+    #     print('Door Index: ', door_idx)
+    #     import pdb; pdb.set_trace()
+    #     #pos = room.door_pos[door_idx]
+    #     x_l, y_l = (room.top[0] + 1, room.top[1] + 1)
+    #     x_m, y_m = (room.top[0] + room.size[0] - 1, room.top[1] + room.size[1] - 1)
+    #     # if not door_loc_x or not door_loc_y:
+    #         # Door positions, order is right, down, left, up
+    #     if i <= self.num_cols - 1 and door_loc_x!=None and door_idx==1:
+    #         room.neighbors[0] = self.room_grid[j][i+1]
+    #         pos = (x_m, y_l+door_loc_y)
+    #     if j <= self.num_rows - 1 and door_loc_y!=None and door_idx==0:
+    #         room.neighbors[0] = self.room_grid[j][i+1]
+    #         pos = (x_l+door_loc_x, y_m)
+    #         # if i > 0:None,
+    #         #     room.neighbors[2] = self.room_grid[j][i-1]
+    #         #     room.door_pos[2] = room.neighbors[2].door_pos[0]
+    #         # if j > 0:
+    #         #     room.neighbors[3] = self.room_grid[j-1][i]
+    #         #     room.door_pos[3] = room.neighbors[3].door_pos[1]`
+    #     self.grid.set(*pos, door)
+    #     door.cur_pos = pos
+    #
+    #     neighbor = room.neighbors[door_idx]
+    #     room.doors[door_idx] = door
+    #     neighbor.doors[(door_idx+2) % 4] = door
+    #
+    #     return door, pos
 
     def validate_instrs(self, instr):
         """

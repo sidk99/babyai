@@ -2,7 +2,98 @@ import gym
 from gym_minigrid.envs import Key, Ball, Box
 from .verifier import *
 from .levelgen import *
+from gym_minigrid.minigrid import *
+from gym_minigrid.roomgrid import *
+class Level_OneRoomOneDoorTest(RoomGridLevel):
+    """
+    Go to the red door
+    (always unlocked, in the current room)
+    Note: this level is intentionally meant for debugging and is
+    intentionally kept very simple.
+    """
 
+    def __init__(self, seed=None):
+        super().__init__(
+            num_rows=1,
+            num_cols=2,
+            room_size=9,
+            seed=seed
+        )
+        self.door_pos = 0
+    def set_door_loc(self, door_pos):
+        for j in range(0, self.num_rows):
+            # For each column of rooms
+            for i in range(0, self.num_cols):
+                room = self.room_grid[j][i]
+
+                x_l, y_l = (room.top[0] + 1, room.top[1] + 1)
+                x_m, y_m = (room.top[0] + room.size[0] - 1, room.top[1] + room.size[1] - 1)
+                # Door positions, order is right, down, left, up
+                if i < self.num_cols - 1:
+                    room.neighbors[0] = self.room_grid[j][i+1]
+                    room.door_pos[0] = (x_m, y_l+door_pos)
+                if j < self.num_rows - 1:
+                    room.neighbors[1] = self.room_grid[j+1][i]
+                    room.door_pos[1] = (x_l +door_pos, y_m)
+                if i > 0:
+                    room.neighbors[2] = self.room_grid[j][i-1]
+                    room.door_pos[2] = room.neighbors[2].door_pos[0]
+                if j > 0:
+                    room.neighbors[3] = self.room_grid[j-1][i]
+                    room.door_pos[3] = room.neighbors[3].door_pos[1]
+
+
+    def gen_mission(self):
+        #import pdb; pdb.set_trace()
+        self.set_door_loc(0)
+        obj, _ = self.add_door(0, 0,0,  'red', locked=False)
+        self.place_agent(0, 0)
+        self.instrs = OpenInstr(ObjDesc('door', 'red'))
+
+class Level_Rm2DoorBC(RoomGridLevel):
+    """
+    Go to the red door
+    (always unlocked, in the current room)
+    Note: this level is intentionally meant for debugging and is
+    intentionally kept very simple.
+    """
+
+    def __init__(self, seed=None):
+        super().__init__(
+            num_rows=1,
+            num_cols=2,
+            room_size=9,
+            seed=seed
+        )
+
+    def gen_mission(self):
+        #import pdb; pdb.set_trace()
+        obj1, _ = self.add_door(0, 0,0,  'blue', locked=False, door_loc_y=0)
+        obj2, _ = self.add_door(0, 0,0,  'yellow', locked=False, door_loc_y=1)
+        self.place_agent(0, 0)
+        self.instrs = OpenInstr(ObjDesc('door', 'red'))
+
+    class Level_Rm3DoorD(RoomGridLevel):
+        """
+        Go to the red door
+        (always unlocked, in the current room)
+        Note: this level is intentionally meant for debugging and is
+        intentionally kept very simple.
+        """
+
+        def __init__(self, seed=None):
+            super().__init__(
+                num_rows=1,
+                num_cols=2,
+                room_size=9,
+                seed=seed
+            )
+
+        def gen_mission(self):
+            #import pdb; pdb.set_trace()
+            obj, _ = self.add_door(0, 0,0,  'green', locked=False, door_loc_y=0)
+            self.place_agent(0, 0)
+            self.instrs = OpenInstr(ObjDesc('door', 'red'))
 
 class Level_GoToRedBlueBall(RoomGridLevel):
     """
