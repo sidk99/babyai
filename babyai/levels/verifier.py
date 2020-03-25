@@ -217,11 +217,11 @@ class ActionInstr(Instr):
         """
         Verifies actions, with and without the done action.
         """
-
         if not use_done_actions:
             return self.verify_action(action)
 
         if action == self.env.actions.done:
+            import pdb; pdb.set_trace()
             if self.lastStepMatch:
                 return 'success'
             return 'failure'
@@ -256,7 +256,7 @@ class OpenInstr(ActionInstr):
 
     def verify_action(self, action):
         # Only verify when the toggle action is performed
-        if action != self.env.actions.toggle:
+        if action != self.env.actions.done:
             return 'continue'
 
         # Get the contents of the cell in front of the agent
