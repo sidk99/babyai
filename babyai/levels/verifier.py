@@ -239,11 +239,12 @@ class ActionInstr(Instr):
 
 
 class OpenInstr(ActionInstr):
-    def __init__(self, obj_desc, strict=False):
+    def __init__(self, obj_desc, strict=False, room=None):
         super().__init__()
         assert obj_desc.type == 'door'
         self.desc = obj_desc
         self.strict = strict
+        self.room = room
 
     def surface(self, env):
         return 'open ' + self.desc.surface(env)
@@ -261,9 +262,13 @@ class OpenInstr(ActionInstr):
 
         # Get the contents of the cell in front of the agent
         front_cell = self.env.grid.get(*self.env.front_pos)
-
+        # import pdb; pdb.set_trace()
         for door in self.desc.obj_set:
-            if front_cell and front_cell is door and door.is_open:
+            #if in the right room
+            # TODO : Fix the indexing of room_grid to make general
+            inroom = self.env.room_grid[0][self.room].pos_inside(self.env.agent_pos[0], self.env.agent_pos[1]) # Used room_grid[0] since only single row envs
+            # TODO: Potential issue, can have successful instance where other doors can also have been opened.
+            if door.is_open and inroom: #front_cell and front_cell is door and
                 return 'success'
 
         # If in strict mode and the wrong door is opened, failure
