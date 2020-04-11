@@ -256,7 +256,7 @@ class OpenInstr(ActionInstr):
 
     def verify_action(self, action):
         # Only verify when the toggle action is performed
-        if action != self.env.actions.toggle:
+        if action != self.env.actions.done: #CHANGED TO DONE 
             return 'continue'
 
         # Get the contents of the cell in front of the agent
