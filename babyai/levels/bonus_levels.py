@@ -48,9 +48,9 @@ class Level_OneRoomOneDoorRedTest(RoomGridLevel):
         self.set_door_loc(0)
         obj, _ = self.add_door(0, 0,0,  'red', locked=False)
         self.place_agent(0, 0)
-        self.instrs = OpenInstr(ObjDesc('door', 'red'))
+        self.instrs = OpenInstr(ObjDesc('door', 'red'), room = 1)
 
-class Level_OneRoomTwoDoorBlueTest(RoomGridLevel):
+class Level_OneRoomTwoDoorTest(RoomGridLevel):
     """
     Go to the red door
     (always unlocked, in the current room)
@@ -58,9 +58,10 @@ class Level_OneRoomTwoDoorBlueTest(RoomGridLevel):
     intentionally kept very simple.
     """
 
-    def __init__(self, seed=None):
-        self.door_pos_lst = [[0,6],[],[0],[]]
-        self.door_color_lst = [['blue','green'], [], ['red'], []]
+    def __init__(self, seed=None, doors_per_side=3):
+        self.doors_per_side=doors_per_side-1
+        self.door_pos_lst = [[0,2],[],[],[]]
+        self.door_color_lst = [['green', 'blue'], [], [], []]
         super().__init__(
             num_rows=1,
             num_cols=2,
@@ -72,9 +73,7 @@ class Level_OneRoomTwoDoorBlueTest(RoomGridLevel):
         # Create the grid
         self.grid = Grid(width, height)
         print('BOOGIE WOOGIE')
-
         self.room_grid = []
-
         # For each row of rooms
         for j in range(0, self.num_rows):
             row = []
@@ -85,14 +84,13 @@ class Level_OneRoomTwoDoorBlueTest(RoomGridLevel):
                     (i * (self.room_size-1), j * (self.room_size-1)),
                     (self.room_size, self.room_size)
                 )
-                room.doors = [[None]*3]*4
+                room.doors = [[None]*self.doors_per_side]*4
+                # room.door_pos = [[None]*self.doors_per_side]*4
                 row.append(room)
-
                 # Generate the walls for this room
                 self.grid.wall_rect(*room.top, *room.size)
 
             self.room_grid.append(row)
-
         # For each row of rooms
         for j in range(0, self.num_rows):
             # For each column of rooms
@@ -101,27 +99,31 @@ class Level_OneRoomTwoDoorBlueTest(RoomGridLevel):
 
                 x_l, y_l = (room.top[0] + 1, room.top[1] + 1)
                 x_m, y_m = (room.top[0] + room.size[0] - 1, room.top[1] + room.size[1] - 1)
+                x_piece = (x_m-x_l)/self.doors_per_side
+                y_piece = (y_m-y_l)/self.doors_per_side
+                print('Xpiece', x_piece)
+                print('Ypiece', y_piece)
                 # Door positions, order is right, down, left, up
                 if i < self.num_cols - 1:
                     room.neighbors[0] = self.room_grid[j][i+1]
-                    room.door_pos[0]=[]
+                    room.door_pos[0]=[] # room.door_pos is already [None]*4
                     for door_pos in self.door_pos_lst[0]:
-                        room.door_pos[0].append((x_m, y_l+door_pos))
+                        room.door_pos[0].append((x_m, y_l+(door_pos*y_piece)))
                 if j < self.num_rows - 1:
                     room.neighbors[1] = self.room_grid[j+1][i]
                     room.door_pos[1]=[]
                     for door_pos in self.door_pos_lst[1]:
-                        room.door_pos[1].append((x_m, y_l+door_pos))
+                        room.door_pos[1].append(x_l+(door_pos*x_piece), y_m)
                 if i > 0:
                     room.neighbors[2] = self.room_grid[j][i-1]
                     room.door_pos[2]=[]
                     for door_pos in self.door_pos_lst[2]:
-                        room.door_pos[2].append((x_m, y_l+door_pos))
+                        room.door_pos[2].append(room.neighbors[2].door_pos[0])
                 if j > 0:
                     room.neighbors[3] = self.room_grid[j-1][i]
                     room.door_pos[3]=[]
                     for door_pos in self.door_pos_lst[3]:
-                        room.door_pos[3].append((x_m, y_l+door_pos))
+                        room.door_pos[3].append(room.neighbors[3].door_pos[1])
         # The agent starts in the middle, facing right
         self.agent_pos = (
             (self.num_cols // 2) * (self.room_size-1) + (self.room_size // 2),
@@ -177,7 +179,6 @@ class Level_OneRoomTwoDoorBlueTest(RoomGridLevel):
             locked = self._rand_bool()
 
         assert room.doors[door_idx][doorid_on_idx] is None, "door already exists"
-        # import pdb; pdb.set_trace()
         room.locked = locked
         door = Door(color, is_locked=locked)
         #print('Door Index: ', door_idx)
@@ -209,7 +210,190 @@ class Level_OneRoomTwoDoorBlueTest(RoomGridLevel):
 
     def gen_mission(self):
         # import pdb; pdb.set_trace()
+        print('BOOGIE WOOGIE')
+        # rightwalldoors=[0,9]
+        #self.set_door_loc(0, rightwalldoors)
+        for i in range(len(self.door_pos_lst)):
+            for j in range(len(self.door_pos_lst[i])):
+                obj, _ = self.add_door(0, 0,i,  self.door_color_lst[i][j], locked=False, doorid_on_idx=j)
+        self.place_agent(0, 0)
+        self.instrs = OpenInstr(ObjDesc('door', 'green'))
+
+class Level_OneRoomTwoDoorBlueTest(RoomGridLevel):
+    """
+    Go to the red door
+    (always unlocked, in the current room)
+    Note: this level is intentionally meant for debugging and is
+    intentionally kept very simple.
+    """
+
+    def __init__(self, seed=None, doors_per_side=3):
+        self.doors_per_side=doors_per_side-1
+        self.door_pos_lst = [[0,2],[],[0],[]]
+        self.door_color_lst = [['green', 'blue'], [], ['red'], []]
+        super().__init__(
+            num_rows=1,
+            num_cols=2,
+            room_size=9,
+            seed=seed
+        )
+
+    def _gen_grid(self, width, height):
+        # Create the grid
+        self.grid = Grid(width, height)
+
+        self.room_grid = []
+        # For each row of rooms
+        for j in range(0, self.num_rows):
+            row = []
+
+            # For each column of rooms
+            for i in range(0, self.num_cols):
+                room = Room(
+                    (i * (self.room_size-1), j * (self.room_size-1)),
+                    (self.room_size, self.room_size)
+                )
+                room.doors = [[None]*self.doors_per_side]*4
+                row.append(room)
+                # Generate the walls for this room
+                self.grid.wall_rect(*room.top, *room.size)
+
+            self.room_grid.append(row)
+        # For each row of rooms
+        for j in range(0, self.num_rows):
+            # For each column of rooms
+            for i in range(0, self.num_cols):
+                room = self.room_grid[j][i]
+
+                x_l, y_l = (room.top[0] + 1, room.top[1] + 1)
+                x_m, y_m = (room.top[0] + room.size[0] - 1, room.top[1] + room.size[1] - 1)
+                x_piece = (x_m-x_l)//self.doors_per_side
+                y_piece = (y_m-y_l)//self.doors_per_side
+                # Door positions, order is right, down, left, up
+                if i < self.num_cols - 1:
+                    room.neighbors[0] = self.room_grid[j][i+1]
+                    room.door_pos[0]=[]
+                    for door_pos in self.door_pos_lst[0]:
+                        room.door_pos[0].append((x_m, y_l+(door_pos*y_piece)))
+                    if i==0:
+                        # room.neighbors[2] = self.room_grid[j][i-1]
+                        room.door_pos[2]=[]
+                        for door_pos in self.door_pos_lst[2]:
+                            room.door_pos[2].append((x_l-1, y_l+(door_pos*y_piece)))
+                if j < self.num_rows - 1:
+                    room.neighbors[1] = self.room_grid[j+1][i]
+                    room.door_pos[1]=[]
+                    for door_pos in self.door_pos_lst[1]:
+                        room.door_pos[1].append((x_l+(door_pos*x_piece), y_m))
+                    if j==0:
+                        # room.neighbors[3] = self.room_grid[j-1][i]
+                        room.door_pos[3]=[]
+                        for door_pos in self.door_pos_lst[3]:
+                            room.door_pos[3].append((x_l+(door_pos*x_piece), y_l-1))
+                if i > 0 and self.room_grid[j][i-1]:
+                    room.neighbors[2] = self.room_grid[j][i-1]
+                    room.door_pos[2] = room.neighbors[2].door_pos[0]
+                # if not self.room_grid[j][i-1]:
+                #     room.neighbors[2] = self.room_grid[j][i-1]
+                #     room.door_pos[2]=[]
+                #     for door_pos in self.door_pos_lst[2]:
+                        # room.door_pos[2].append((x_m, y_l+(door_pos*y_piece)))
+                if j > 0 and self.room_grid[j-1][i]:
+                    room.neighbors[3] = self.room_grid[j-1][i]
+                    room.door_pos[3] = room.neighbors[3].door_pos[1]
+                # if not self.room_grid[j-1][i]:
+                #     room.neighbors[3] = self.room_grid[j-1][i]
+                #     room.door_pos[3]=[]
+                #     for door_pos in self.door_pos_lst[3]:
+                #         room.door_pos[3].append((x_l+(door_pos*x_piece), y_m))
+        # The agent starts in the middle, facing right
+        self.agent_pos = (
+            (self.num_cols // 2) * (self.room_size-1) + (self.room_size // 2),
+            (self.num_rows // 2) * (self.room_size-1) + (self.room_size // 2)
+        )
+        self.agent_dir = 0
+        self.gen_mission()
+
+        # Validate the instructions
+        self.validate_instrs(self.instrs)
+
+
+    def set_door_loc(self, door_idx, door_pos_lst):
+        room.door_pos[door_idx]=[]
+        for door_pos in door_pos_lst:
+            room.door_pos[door_idx].append((x_m, y_l+door_pos))
+                # if door_idx==0:
+                    #room.neighbors[0] = self.room_grid[j][i+1]
+                #     room.door_pos[door_idx]=[]
+                #     for door_pos in door_pos_lst:
+                #         room.door_pos[door_idx].append((x_m, y_l+door_pos))
+                # if door_idx==1:
+                #     #room.neighbors[1] = self.room_grid[j+1][i]
+                #     room.door_pos[1] = (x_l +door_pos, y_m)
+                #
+                # if door_idx==2:
+                #     #room.neighbors[2] = self.room_grid[j][i-1]
+                #     room.door_pos[2] = room.neighbors[2].door_pos[0]
+                # if door_idx==3:
+                #     #room.neighbors[3] = self.room_grid[j-1][i]
+                #     room.door_pos[3] = room.neighbors[3].door_pos[1]
+#set door pos will be called first with predetermined number of doors and then add door will be called with the number of door given in set door pos paramter
+    def add_door(self, i, j, door_idx=None, color=None, locked=None, doorid_on_idx=None):
+        """
+        Add a door to a room, connecting it to a neighbor
+        """
+
+        room = self.get_room(i, j)
         # print('BOOGIE WOOGIE')
+
+        if door_idx == None:
+            # Need to make sure that there is a neighbor along this wall
+            # and that there is not already a door
+            while True:
+                door_idx = self._rand_int(0, 4)
+                if room.neighbors[door_idx] and room.doors[door_idx][doorid_on_idx] is None:
+                    break
+
+        if color == None:
+            color = self._rand_color()
+
+        if locked is None:
+            locked = self._rand_bool()
+
+        assert room.doors[door_idx][doorid_on_idx] is None, "door already exists"
+        room.locked = locked
+        door = Door(color, is_locked=locked)
+        #print('Door Index: ', door_idx)
+        pos = room.door_pos[door_idx][doorid_on_idx]
+        #print('Door Position: ', door_idx)
+
+        self.grid.set(*pos, door)
+        door.cur_pos = pos
+
+        neighbor = room.neighbors[door_idx]
+        room.doors[door_idx].append(door)
+        if neighbor:
+            neighbor.doors[(door_idx+2) % 4] = door
+
+        return door, pos
+
+    # def reset(self, **kwargs):
+    #     obs = super().reset(**kwargs)
+    #
+    #     # Recreate the verifier
+    #     # self.instrs.reset_verifier(self)
+    #
+    #     # Compute the time step limit based on the maze size and instructions
+    #     nav_time_room = self.room_size ** 2
+    #     nav_time_maze = nav_time_room * self.num_rows * self.num_cols
+    #     num_navs = self.num_navs_needed(self.instrs)
+    #     self.max_steps = num_navs * nav_time_maze
+    #
+    #     return obs
+
+    def gen_mission(self):
+        # import pdb; pdb.set_trace()
+        print('BOOGIE WOOGIE')
         # rightwalldoors=[0,9]
         #self.set_door_loc(0, rightwalldoors)
         for i in range(len(self.door_pos_lst)):
@@ -226,9 +410,10 @@ class Level_OneRoomTwoDoorGreenTest(RoomGridLevel):
     intentionally kept very simple.
     """
 
-    def __init__(self, seed=None):
-        self.door_pos_lst = [[0,6],[],[0],[]]
-        self.door_color_lst = [['blue','green'], [], ['red'], []]
+    def __init__(self, seed=None, doors_per_side=3):
+        self.doors_per_side=doors_per_side-1
+        self.door_pos_lst = [[0,2],[],[0],[]]
+        self.door_color_lst = [['green', 'blue'], [], ['red'], []]
         super().__init__(
             num_rows=1,
             num_cols=2,
@@ -239,10 +424,8 @@ class Level_OneRoomTwoDoorGreenTest(RoomGridLevel):
     def _gen_grid(self, width, height):
         # Create the grid
         self.grid = Grid(width, height)
-        print('BOOGIE WOOGIE')
 
         self.room_grid = []
-
         # For each row of rooms
         for j in range(0, self.num_rows):
             row = []
@@ -253,47 +436,59 @@ class Level_OneRoomTwoDoorGreenTest(RoomGridLevel):
                     (i * (self.room_size-1), j * (self.room_size-1)),
                     (self.room_size, self.room_size)
                 )
-                room.doors = [[None]*3]*4
+                room.doors = [[None]*self.doors_per_side]*4
                 row.append(room)
-
                 # Generate the walls for this room
                 self.grid.wall_rect(*room.top, *room.size)
 
             self.room_grid.append(row)
-
         # For each row of rooms
         for j in range(0, self.num_rows):
             # For each column of rooms
             for i in range(0, self.num_cols):
                 room = self.room_grid[j][i]
-                import pdb; pdb.set_trace()
 
                 x_l, y_l = (room.top[0] + 1, room.top[1] + 1)
                 x_m, y_m = (room.top[0] + room.size[0] - 1, room.top[1] + room.size[1] - 1)
+                x_piece = (x_m-x_l)//self.doors_per_side
+                y_piece = (y_m-y_l)//self.doors_per_side
                 # Door positions, order is right, down, left, up
                 if i < self.num_cols - 1:
                     room.neighbors[0] = self.room_grid[j][i+1]
                     room.door_pos[0]=[]
                     for door_pos in self.door_pos_lst[0]:
-                        room.door_pos[0].append((x_m, y_l+door_pos))
+                        room.door_pos[0].append((x_m, y_l+(door_pos*y_piece)))
+                    if i==0:
+                        # room.neighbors[2] = self.room_grid[j][i-1]
+                        room.door_pos[2]=[]
+                        for door_pos in self.door_pos_lst[2]:
+                            room.door_pos[2].append((x_l-1, y_l+(door_pos*y_piece)))
                 if j < self.num_rows - 1:
                     room.neighbors[1] = self.room_grid[j+1][i]
                     room.door_pos[1]=[]
                     for door_pos in self.door_pos_lst[1]:
-                        room.door_pos[1].append((x_m, y_l+door_pos))
-                if i > 0:
+                        room.door_pos[1].append((x_l+(door_pos*x_piece), y_m))
+                    if j==0:
+                        # room.neighbors[3] = self.room_grid[j-1][i]
+                        room.door_pos[3]=[]
+                        for door_pos in self.door_pos_lst[3]:
+                            room.door_pos[3].append((x_l+(door_pos*x_piece), y_l-1))
+                if i > 0 and self.room_grid[j][i-1]:
                     room.neighbors[2] = self.room_grid[j][i-1]
                     room.door_pos[2] = room.neighbors[2].door_pos[0]
-                    # room.door_pos[2]=[]
-                    # for door_pos in self.door_pos_lst[2]:
-                    #     room.door_pos[2].append((x_m, y_l+door_pos))
-                if j > 0:
+                # if not self.room_grid[j][i-1]:
+                #     room.neighbors[2] = self.room_grid[j][i-1]
+                #     room.door_pos[2]=[]
+                #     for door_pos in self.door_pos_lst[2]:
+                        # room.door_pos[2].append((x_m, y_l+(door_pos*y_piece)))
+                if j > 0 and self.room_grid[j-1][i]:
                     room.neighbors[3] = self.room_grid[j-1][i]
                     room.door_pos[3] = room.neighbors[3].door_pos[1]
-
-                    # room.door_pos[3]=[]
-                    # for door_pos in self.door_pos_lst[3]:
-                    #     room.door_pos[3].append((x_m, y_l+door_pos))
+                # if not self.room_grid[j-1][i]:
+                #     room.neighbors[3] = self.room_grid[j-1][i]
+                #     room.door_pos[3]=[]
+                #     for door_pos in self.door_pos_lst[3]:
+                #         room.door_pos[3].append((x_l+(door_pos*x_piece), y_m))
         # The agent starts in the middle, facing right
         self.agent_pos = (
             (self.num_cols // 2) * (self.room_size-1) + (self.room_size // 2),
@@ -332,7 +527,7 @@ class Level_OneRoomTwoDoorGreenTest(RoomGridLevel):
         """
 
         room = self.get_room(i, j)
-        print('BOOGIE WOOGIE')
+        # print('BOOGIE WOOGIE')
 
         if door_idx == None:
             # Need to make sure that there is a neighbor along this wall
@@ -349,7 +544,6 @@ class Level_OneRoomTwoDoorGreenTest(RoomGridLevel):
             locked = self._rand_bool()
 
         assert room.doors[door_idx][doorid_on_idx] is None, "door already exists"
-        import pdb; pdb.set_trace()
         room.locked = locked
         door = Door(color, is_locked=locked)
         #print('Door Index: ', door_idx)
@@ -361,7 +555,8 @@ class Level_OneRoomTwoDoorGreenTest(RoomGridLevel):
 
         neighbor = room.neighbors[door_idx]
         room.doors[door_idx].append(door)
-        neighbor.doors[(door_idx+2) % 4] = door
+        if neighbor:
+            neighbor.doors[(door_idx+2) % 4] = door
 
         return door, pos
 
@@ -381,7 +576,7 @@ class Level_OneRoomTwoDoorGreenTest(RoomGridLevel):
 
     def gen_mission(self):
         # import pdb; pdb.set_trace()
-        # print('BOOGIE WOOGIE')
+        print('BOOGIE WOOGIE')
         # rightwalldoors=[0,9]
         #self.set_door_loc(0, rightwalldoors)
         for i in range(len(self.door_pos_lst)):
@@ -389,6 +584,1368 @@ class Level_OneRoomTwoDoorGreenTest(RoomGridLevel):
                 obj, _ = self.add_door(0, 0,i,  self.door_color_lst[i][j], locked=False, doorid_on_idx=j)
         self.place_agent(0, 0)
         self.instrs = OpenInstr(ObjDesc('door', 'green'))
+
+class Level_OneRoomTwoDoorYellowTest(RoomGridLevel):
+    """
+    Go to the red door
+    (always unlocked, in the current room)
+    Note: this level is intentionally meant for debugging and is
+    intentionally kept very simple.
+    """
+
+    def __init__(self, seed=None, doors_per_side=3):
+        self.doors_per_side=doors_per_side-1
+        self.door_pos_lst = [[2],[],[0,2],[]]
+        self.door_color_lst = [['yellow'], [], ['green', 'blue'], []]
+        super().__init__(
+            num_rows=1,
+            num_cols=2,
+            room_size=9,
+            seed=seed
+        )
+
+    def _gen_grid(self, width, height):
+        # Create the grid
+        self.grid = Grid(width, height)
+
+        self.room_grid = []
+        # For each row of rooms
+        for j in range(0, self.num_rows):
+            row = []
+
+            # For each column of rooms
+            for i in range(0, self.num_cols):
+                room = Room(
+                    (i * (self.room_size-1), j * (self.room_size-1)),
+                    (self.room_size, self.room_size)
+                )
+                room.doors = [[None]*self.doors_per_side]*4
+                row.append(room)
+                # Generate the walls for this room
+                self.grid.wall_rect(*room.top, *room.size)
+
+            self.room_grid.append(row)
+        # For each row of rooms
+        for j in range(0, self.num_rows):
+            # For each column of rooms
+            for i in range(0, self.num_cols):
+                room = self.room_grid[j][i]
+
+                x_l, y_l = (room.top[0] + 1, room.top[1] + 1)
+                x_m, y_m = (room.top[0] + room.size[0] - 1, room.top[1] + room.size[1] - 1)
+                x_piece = (x_m-x_l)//self.doors_per_side
+                y_piece = (y_m-y_l)//self.doors_per_side
+                # Door positions, order is right, down, left, up
+                if i < self.num_cols - 1:
+                    room.neighbors[0] = self.room_grid[j][i+1]
+                    room.door_pos[0]=[]
+                    for door_pos in self.door_pos_lst[0]:
+                        room.door_pos[0].append((x_m, y_l+(door_pos*y_piece)))
+                    if i==0:
+                        # room.neighbors[2] = self.room_grid[j][i-1]
+                        room.door_pos[2]=[]
+                        for door_pos in self.door_pos_lst[2]:
+                            room.door_pos[2].append((x_l-1, y_l+(door_pos*y_piece)))
+                if j < self.num_rows - 1:
+                    room.neighbors[1] = self.room_grid[j+1][i]
+                    room.door_pos[1]=[]
+                    for door_pos in self.door_pos_lst[1]:
+                        room.door_pos[1].append((x_l+(door_pos*x_piece), y_m))
+                    if j==0:
+                        # room.neighbors[3] = self.room_grid[j-1][i]
+                        room.door_pos[3]=[]
+                        for door_pos in self.door_pos_lst[3]:
+                            room.door_pos[3].append((x_l+(door_pos*x_piece), y_l-1))
+                if i > 0 and self.room_grid[j][i-1]:
+                    room.neighbors[2] = self.room_grid[j][i-1]
+                    room.door_pos[2] = room.neighbors[2].door_pos[0]
+                # if not self.room_grid[j][i-1]:
+                #     room.neighbors[2] = self.room_grid[j][i-1]
+                #     room.door_pos[2]=[]
+                #     for door_pos in self.door_pos_lst[2]:
+                        # room.door_pos[2].append((x_m, y_l+(door_pos*y_piece)))
+                if j > 0 and self.room_grid[j-1][i]:
+                    room.neighbors[3] = self.room_grid[j-1][i]
+                    room.door_pos[3] = room.neighbors[3].door_pos[1]
+                # if not self.room_grid[j-1][i]:
+                #     room.neighbors[3] = self.room_grid[j-1][i]
+                #     room.door_pos[3]=[]
+                #     for door_pos in self.door_pos_lst[3]:
+                #         room.door_pos[3].append((x_l+(door_pos*x_piece), y_m))
+        # The agent starts in the middle, facing right
+        self.agent_pos = (
+            (self.num_cols // 2) * (self.room_size-1) + (self.room_size // 2),
+            (self.num_rows // 2) * (self.room_size-1) + (self.room_size // 2)
+        )
+        self.agent_dir = 0
+        self.gen_mission()
+
+        # Validate the instructions
+        self.validate_instrs(self.instrs)
+
+
+    def set_door_loc(self, door_idx, door_pos_lst):
+        room.door_pos[door_idx]=[]
+        for door_pos in door_pos_lst:
+            room.door_pos[door_idx].append((x_m, y_l+door_pos))
+                # if door_idx==0:
+                    #room.neighbors[0] = self.room_grid[j][i+1]
+                #     room.door_pos[door_idx]=[]
+                #     for door_pos in door_pos_lst:
+                #         room.door_pos[door_idx].append((x_m, y_l+door_pos))
+                # if door_idx==1:
+                #     #room.neighbors[1] = self.room_grid[j+1][i]
+                #     room.door_pos[1] = (x_l +door_pos, y_m)
+                #
+                # if door_idx==2:
+                #     #room.neighbors[2] = self.room_grid[j][i-1]
+                #     room.door_pos[2] = room.neighbors[2].door_pos[0]
+                # if door_idx==3:
+                #     #room.neighbors[3] = self.room_grid[j-1][i]
+                #     room.door_pos[3] = room.neighbors[3].door_pos[1]
+#set door pos will be called first with predetermined number of doors and then add door will be called with the number of door given in set door pos paramter
+    def add_door(self, i, j, door_idx=None, color=None, locked=None, doorid_on_idx=None):
+        """
+        Add a door to a room, connecting it to a neighbor
+        """
+
+        room = self.get_room(i, j)
+        # print('BOOGIE WOOGIE')
+
+        if door_idx == None:
+            # Need to make sure that there is a neighbor along this wall
+            # and that there is not already a door
+            while True:
+                door_idx = self._rand_int(0, 4)
+                if room.neighbors[door_idx] and room.doors[door_idx][doorid_on_idx] is None:
+                    break
+
+        if color == None:
+            color = self._rand_color()
+
+        if locked is None:
+            locked = self._rand_bool()
+
+        assert room.doors[door_idx][doorid_on_idx] is None, "door already exists"
+        room.locked = locked
+        door = Door(color, is_locked=locked)
+        #print('Door Index: ', door_idx)
+        pos = room.door_pos[door_idx][doorid_on_idx]
+        #print('Door Position: ', door_idx)
+
+        self.grid.set(*pos, door)
+        door.cur_pos = pos
+
+        neighbor = room.neighbors[door_idx]
+        room.doors[door_idx].append(door)
+        if neighbor:
+            neighbor.doors[(door_idx+2) % 4] = door
+
+        return door, pos
+
+    # def reset(self, **kwargs):
+    #     obs = super().reset(**kwargs)
+    #
+    #     # Recreate the verifier
+    #     # self.instrs.reset_verifier(self)
+    #
+    #     # Compute the time step limit based on the maze size and instructions
+    #     nav_time_room = self.room_size ** 2
+    #     nav_time_maze = nav_time_room * self.num_rows * self.num_cols
+    #     num_navs = self.num_navs_needed(self.instrs)
+    #     self.max_steps = num_navs * nav_time_maze
+    #
+    #     return obs
+
+    def gen_mission(self):
+        # import pdb; pdb.set_trace()
+        print('BOOGIE WOOGIE')
+        # rightwalldoors=[0,9]
+        #self.set_door_loc(0, rightwalldoors)
+        for i in range(len(self.door_pos_lst)):
+            for j in range(len(self.door_pos_lst[i])):
+                obj, _ = self.add_door(0, 0,i,  self.door_color_lst[i][j], locked=False, doorid_on_idx=j)
+        self.place_agent(0, 0)
+        self.instrs = OpenInstr(ObjDesc('door', 'yellow'))
+
+class Level_ThreeRoomTest(RoomGridLevel):
+    """
+    Go to the red doorThree
+    (always unlocked, in the current room)
+    Note: this level is intentionally meant for debugging and is
+    intentionally kept very simple.
+    """
+
+    def __init__(self, seed=None, doors_per_side=3):
+        self.doors_per_side=doors_per_side-1
+        self.door_pos_lst = [[[[0], [], [], []],[[0,2], [], [], []], [[2],[],[],[]]]]
+        self.door_color_lst = [[[['red'], [], [], []], [['green', 'blue'], [], [], []], [['yellow'], [], [], []]]]
+        super().__init__(
+            num_rows=1,
+            num_cols=3,
+            room_size=9,
+            seed=seed
+        )
+
+    def _gen_grid(self, width, height):
+        # Create the grid
+        self.grid = Grid(width, height)
+
+        self.room_grid = []
+        # For each row of rooms
+        for j in range(0, self.num_rows):
+            row = []
+
+            # For each column of rooms
+            for i in range(0, self.num_cols):
+                room = Room(
+                    (i * (self.room_size-1), j * (self.room_size-1)),
+                    (self.room_size, self.room_size)
+                )
+                room.doors = [[None]*self.doors_per_side]*4
+                row.append(room)
+                # Generate the walls for this room
+                self.grid.wall_rect(*room.top, *room.size)
+
+            self.room_grid.append(row)
+        # For each row of rooms
+        # import pdb; pdb.set_trace()
+        for j in range(0, self.num_rows):
+            # For each column of rooms
+            for i in range(0, self.num_cols):
+                room = self.room_grid[j][i]
+
+                x_l, y_l = (room.top[0] + 1, room.top[1] + 1)
+                x_m, y_m = (room.top[0] + room.size[0] - 1, room.top[1] + room.size[1] - 1)
+                x_piece = (x_m-x_l)//self.doors_per_side
+                y_piece = (y_m-y_l)//self.doors_per_side
+                # Door positions, order is right, down, left, up
+                if i <= self.num_cols - 1:
+                    if i!=self.num_cols-1:
+                        room.neighbors[0] = self.room_grid[j][i+1]
+                    room.door_pos[0]=[]
+                    for door_pos in self.door_pos_lst[j][i][0]:
+                        room.door_pos[0].append((x_m, y_l+(door_pos*y_piece)))
+                    if i==0:
+                        # room.neighbors[2] = self.room_grid[j][i-1]
+                        room.door_pos[2]=[]
+                        for door_pos in self.door_pos_lst[j][i][2]:
+                            room.door_pos[2].append((x_l-1, y_l+(door_pos*y_piece)))
+                if j <= self.num_rows - 1:
+                    if j!=self.num_rows-1:
+                        room.neighbors[1] = self.room_grid[j+1][i]
+                    room.door_pos[1]=[]
+                    for door_pos in self.door_pos_lst[j][i][1]:
+                        room.door_pos[1].append((x_l+(door_pos*x_piece), y_m))
+                    if j==0:
+                        # room.neighbors[3] = self.room_grid[j-1][i]
+                        room.door_pos[3]=[]
+                        for door_pos in self.door_pos_lst[j][i][3]:
+                            room.door_pos[3].append((x_l+(door_pos*x_piece), y_l-1))
+                if i > 0 and self.room_grid[j][i-1]:
+                    room.neighbors[2] = self.room_grid[j][i-1]
+                    room.door_pos[2] = room.neighbors[2].door_pos[0]
+                # if not self.room_grid[j][i-1]:
+                #     room.neighbors[2] = self.room_grid[j][i-1]
+                #     room.door_pos[2]=[]
+                #     for door_pos in self.door_pos_lst[2]:
+                        # room.door_pos[2].append((x_m, y_l+(door_pos*y_piece)))
+                if j > 0 and self.room_grid[j-1][i]:
+                    room.neighbors[3] = self.room_grid[j-1][i]
+                    room.door_pos[3] = room.neighbors[3].door_pos[1]
+                # if not self.room_grid[j-1][i]:
+                #     room.neighbors[3] = self.room_grid[j-1][i]
+                #     room.door_pos[3]=[]
+                #     for door_pos in self.door_pos_lst[3]:
+                #         room.door_pos[3].append((x_l+(door_pos*x_piece), y_m))
+        # The agent starts in the middle, facing right
+        self.agent_pos = (
+            (self.num_cols // 2) * (self.room_size-1) + (self.room_size // 2),
+            (self.num_rows // 2) * (self.room_size-1) + (self.room_size // 2)
+        )
+        self.agent_dir = 0
+        self.gen_mission()
+
+        # Validate the instructions
+        self.validate_instrs(self.instrs)
+
+
+    def set_door_loc(self, door_idx, door_pos_lst):
+        room.door_pos[door_idx]=[]
+        for door_pos in door_pos_lst:
+            room.door_pos[door_idx].append((x_m, y_l+door_pos))
+                # if door_idx==0:
+                    #room.neighbors[0] = self.room_grid[j][i+1]
+                #     room.door_pos[door_idx]=[]
+                #     for door_pos in door_pos_lst:
+                #         room.door_pos[door_idx].append((x_m, y_l+door_pos))
+                # if door_idx==1:
+                #     #room.neighbors[1] = self.room_grid[j+1][i]
+                #     room.door_pos[1] = (x_l +door_pos, y_m)
+                #
+                # if door_idx==2:
+                #     #room.neighbors[2] = self.room_grid[j][i-1]
+                #     room.door_pos[2] = room.neighbors[2].door_pos[0]
+                # if door_idx==3:
+                #     #room.neighbors[3] = self.room_grid[j-1][i]
+                #     room.door_pos[3] = room.neighbors[3].door_pos[1]
+#set door pos will be called first with predetermined number of doors and then add door will be called with the number of door given in set door pos paramter
+    def add_door(self, i, j, door_idx=None, color=None, locked=None, doorid_on_idx=None):
+        """
+        Add a door to a room, connecting it to a neighbor
+        """
+
+        room = self.get_room(i, j)
+        # print('BOOGIE WOOGIE')
+
+        if door_idx == None:
+            # Need to make sure that there is a neighbor along this wall
+            # and that there is not already a door
+            while True:
+                door_idx = self._rand_int(0, 4)
+                if room.neighbors[door_idx] and room.doors[door_idx][doorid_on_idx] is None:
+                    break
+
+        if color == None:
+            color = self._rand_color()
+
+        if locked is None:
+            locked = self._rand_bool()
+
+        assert room.doors[door_idx][doorid_on_idx] is None, "door already exists"
+        room.locked = locked
+        door = Door(color, is_locked=locked)
+        #print('Door Index: ', door_idx)
+        pos = room.door_pos[door_idx][doorid_on_idx]
+        #print('Door Position: ', door_idx)
+
+        self.grid.set(*pos, door)
+        door.cur_pos = pos
+
+        neighbor = room.neighbors[door_idx]
+        room.doors[door_idx].append(door)
+        if neighbor:
+            neighbor.doors[(door_idx+2) % 4] = door
+
+        return door, pos
+
+    # def reset(self, **kwargs):
+    #     obs = super().reset(**kwargs)
+    #
+    #     # Recreate the verifier
+    #     # self.instrs.reset_verifier(self)
+    #
+    #     # Compute the time step limit based on the maze size and instructions
+    #     nav_time_room = self.room_size ** 2
+    #     nav_time_maze = nav_time_room * self.num_rows * self.num_cols
+    #     num_navs = self.num_navs_needed(self.instrs)
+    #     self.max_steps = num_navs * nav_time_maze
+    #
+    #     return obs
+
+    def gen_mission(self):
+        # import pdb; pdb.set_trace()
+        print('BOOGIE WOOGIE')
+        # rightwalldoors=[0,9]
+        #self.set_door_loc(0, rightwalldoors)
+        for r in range(0, self.num_rows):
+            # For each column of rooms
+            for c in range(0, self.num_cols):
+                room_door_pos_lst = self.door_pos_lst[r][c]
+                room_door_color_lst = self.door_color_lst[r][c]
+                for i in range(len(room_door_pos_lst)):
+                    for j in range(len(room_door_pos_lst[i])):
+                        print(room_door_color_lst[i][j])
+                        # import pdb; pdb.set_trace()
+                        obj, _ = self.add_door(c, r,i,  room_door_color_lst[i][j], locked=False, doorid_on_idx=j)
+        self.place_agent(0, 0)
+        self.instrs = OpenInstr(ObjDesc('door', 'yellow'))
+
+
+class Level_RedDoorFourRoomTest(RoomGridLevel):
+    """
+    Go to the red doorThree
+    (always unlocked, in the current room)
+    Note: this level is intentionally meant for debugging and is
+    intentionally kept very simple.
+    """
+
+    def __init__(self, seed=None, doors_per_side=3):
+        self.doors_per_side=doors_per_side-1
+        self.door_pos_lst = [[[[0], [], [], []],[[0,2], [], [], []], [[2],[],[],[]], [[],[],[],[]]]]
+        self.door_color_lst = [[[['red'], [], [], []], [['green', 'blue'], [], [], []], [['yellow'], [], [], []], [[],[],[],[]]]]
+        super().__init__(
+            num_rows=1,
+            num_cols=4,
+            room_size=9,
+            seed=seed
+        )
+
+    def _gen_grid(self, width, height):
+        # Create the grid
+        self.grid = Grid(width, height)
+
+        self.room_grid = []
+        # For each row of rooms
+        for j in range(0, self.num_rows):
+            row = []
+
+            # For each column of rooms
+            for i in range(0, self.num_cols):
+                room = Room(
+                    (i * (self.room_size-1), j * (self.room_size-1)),
+                    (self.room_size, self.room_size)
+                )
+                room.doors = [[None]*self.doors_per_side]*4
+                row.append(room)
+                # Generate the walls for this room
+                self.grid.wall_rect(*room.top, *room.size)
+
+            self.room_grid.append(row)
+        # For each row of rooms
+        # import pdb; pdb.set_trace()
+        for j in range(0, self.num_rows):
+            # For each column of rooms
+            for i in range(0, self.num_cols):
+                room = self.room_grid[j][i]
+
+                x_l, y_l = (room.top[0] + 1, room.top[1] + 1)
+                x_m, y_m = (room.top[0] + room.size[0] - 1, room.top[1] + room.size[1] - 1)
+                x_piece = (x_m-x_l)//self.doors_per_side
+                y_piece = (y_m-y_l)//self.doors_per_side
+                # Door positions, order is right, down, left, up
+                if i <= self.num_cols - 1:
+                    if i!=self.num_cols-1:
+                        room.neighbors[0] = self.room_grid[j][i+1]
+                    room.door_pos[0]=[]
+                    for door_pos in self.door_pos_lst[j][i][0]:
+                        room.door_pos[0].append((x_m, y_l+(door_pos*y_piece)))
+                    if i==0:
+                        # room.neighbors[2] = self.room_grid[j][i-1]
+                        room.door_pos[2]=[]
+                        for door_pos in self.door_pos_lst[j][i][2]:
+                            room.door_pos[2].append((x_l-1, y_l+(door_pos*y_piece)))
+                if j <= self.num_rows - 1:
+                    if j!=self.num_rows-1:
+                        room.neighbors[1] = self.room_grid[j+1][i]
+                    room.door_pos[1]=[]
+                    for door_pos in self.door_pos_lst[j][i][1]:
+                        room.door_pos[1].append((x_l+(door_pos*x_piece), y_m))
+                    if j==0:
+                        # room.neighbors[3] = self.room_grid[j-1][i]
+                        room.door_pos[3]=[]
+                        for door_pos in self.door_pos_lst[j][i][3]:
+                            room.door_pos[3].append((x_l+(door_pos*x_piece), y_l-1))
+                if i > 0 and self.room_grid[j][i-1]:
+                    room.neighbors[2] = self.room_grid[j][i-1]
+                    room.door_pos[2] = room.neighbors[2].door_pos[0]
+                # if not self.room_grid[j][i-1]:
+                #     room.neighbors[2] = self.room_grid[j][i-1]
+                #     room.door_pos[2]=[]
+                #     for door_pos in self.door_pos_lst[2]:
+                        # room.door_pos[2].append((x_m, y_l+(door_pos*y_piece)))
+                if j > 0 and self.room_grid[j-1][i]:
+                    room.neighbors[3] = self.room_grid[j-1][i]
+                    room.door_pos[3] = room.neighbors[3].door_pos[1]
+                # if not self.room_grid[j-1][i]:
+                #     room.neighbors[3] = self.room_grid[j-1][i]
+                #     room.door_pos[3]=[]
+                #     for door_pos in self.door_pos_lst[3]:
+                #         room.door_pos[3].append((x_l+(door_pos*x_piece), y_m))
+        # The agent starts in the middle, facing right
+        self.agent_pos = (
+            (self.num_cols // 2) * (self.room_size-1) + (self.room_size // 2),
+            (self.num_rows // 2) * (self.room_size-1) + (self.room_size // 2)
+        )
+        self.agent_dir = 0
+        self.gen_mission()
+
+        # Validate the instructions
+        self.validate_instrs(self.instrs)
+
+
+    def set_door_loc(self, door_idx, door_pos_lst):
+        room.door_pos[door_idx]=[]
+        for door_pos in door_pos_lst:
+            room.door_pos[door_idx].append((x_m, y_l+door_pos))
+                # if door_idx==0:
+                    #room.neighbors[0] = self.room_grid[j][i+1]
+                #     room.door_pos[door_idx]=[]
+                #     for door_pos in door_pos_lst:
+                #         room.door_pos[door_idx].append((x_m, y_l+door_pos))
+                # if door_idx==1:
+                #     #room.neighbors[1] = self.room_grid[j+1][i]
+                #     room.door_pos[1] = (x_l +door_pos, y_m)
+                #
+                # if door_idx==2:
+                #     #room.neighbors[2] = self.room_grid[j][i-1]
+                #     room.door_pos[2] = room.neighbors[2].door_pos[0]
+                # if door_idx==3:
+                #     #room.neighbors[3] = self.room_grid[j-1][i]
+                #     room.door_pos[3] = room.neighbors[3].door_pos[1]
+#set door pos will be called first with predetermined number of doors and then add door will be called with the number of door given in set door pos paramter
+    def add_door(self, i, j, door_idx=None, color=None, locked=None, doorid_on_idx=None):
+        """
+        Add a door to a room, connecting it to a neighbor
+        """
+
+        room = self.get_room(i, j)
+        # print('BOOGIE WOOGIE')
+
+        if door_idx == None:
+            # Need to make sure that there is a neighbor along this wall
+            # and that there is not already a door
+            while True:
+                door_idx = self._rand_int(0, 4)
+                if room.neighbors[door_idx] and room.doors[door_idx][doorid_on_idx] is None:
+                    break
+
+        if color == None:
+            color = self._rand_color()
+
+        if locked is None:
+            locked = self._rand_bool()
+
+        assert room.doors[door_idx][doorid_on_idx] is None, "door already exists"
+        room.locked = locked
+        door = Door(color, is_locked=locked)
+        #print('Door Index: ', door_idx)
+        pos = room.door_pos[door_idx][doorid_on_idx]
+        #print('Door Position: ', door_idx)
+
+        self.grid.set(*pos, door)
+        door.cur_pos = pos
+
+        neighbor = room.neighbors[door_idx]
+        room.doors[door_idx].append(door)
+        if neighbor:
+            neighbor.doors[(door_idx+2) % 4] = door
+
+        return door, pos
+
+    # def reset(self, **kwargs):
+    #     obs = super().reset(**kwargs)
+    #
+    #     # Recreate the verifier
+    #     # self.instrs.reset_verifier(self)
+    #
+    #     # Compute the time step limit based on the maze size and instructions
+    #     nav_time_room = self.room_size ** 2
+    #     nav_time_maze = nav_time_room * self.num_rows * self.num_cols
+    #     num_navs = self.num_navs_needed(self.instrs)
+    #     self.max_steps = num_navs * nav_time_maze
+    #
+    #     return obs
+
+    def gen_mission(self):
+        # import pdb; pdb.set_trace()
+        print('BOOGIE WOOGIE')
+        start_room = 0
+        end_room = 1
+        # rightwalldoors=[0,9]
+        #self.set_door_loc(0, rightwalldoors)
+        for r in range(0, self.num_rows):
+            # For each column of rooms
+            for c in range(0, self.num_cols):
+                room_door_pos_lst = self.door_pos_lst[r][c]
+                room_door_color_lst = self.door_color_lst[r][c]
+                for i in range(len(room_door_pos_lst)):
+                    for j in range(len(room_door_pos_lst[i])):
+                        print(room_door_color_lst[i][j])
+                        # import pdb; pdb.set_trace()
+                        obj, _ = self.add_door(c, r,i,  room_door_color_lst[i][j], locked=False, doorid_on_idx=j)
+        self.place_agent(start_room,0)
+        self.instrs = OpenInstr(ObjDesc('door', 'red'), room=end_room)
+
+
+
+class Level_GreenDoorFourRoomTest(RoomGridLevel):
+    """
+    Go to the red doorThree
+    (always unlocked, in the current room)
+    Note: this level is intentionally meant for debugging and is
+    intentionally kept very simple.
+    """
+
+    def __init__(self, seed=None, doors_per_side=3):
+        self.doors_per_side=doors_per_side-1
+        self.door_pos_lst = [[[[0], [], [], []],[[0,2], [], [], []], [[2],[],[],[]], [[],[],[],[]]]]
+        self.door_color_lst = [[[['red'], [], [], []], [['green', 'blue'], [], [], []], [['yellow'], [], [], []], [[],[],[],[]]]]
+        super().__init__(
+            num_rows=1,
+            num_cols=4,
+            room_size=9,
+            seed=seed
+        )
+
+    def _gen_grid(self, width, height):
+        # Create the grid
+        self.grid = Grid(width, height)
+
+        self.room_grid = []
+        # For each row of rooms
+        for j in range(0, self.num_rows):
+            row = []
+
+            # For each column of rooms
+            for i in range(0, self.num_cols):
+                room = Room(
+                    (i * (self.room_size-1), j * (self.room_size-1)),
+                    (self.room_size, self.room_size)
+                )
+                room.doors = [[None]*self.doors_per_side]*4
+                row.append(room)
+                # Generate the walls for this room
+                self.grid.wall_rect(*room.top, *room.size)
+
+            self.room_grid.append(row)
+        # For each row of rooms
+        # import pdb; pdb.set_trace()
+        for j in range(0, self.num_rows):
+            # For each column of rooms
+            for i in range(0, self.num_cols):
+                room = self.room_grid[j][i]
+
+                x_l, y_l = (room.top[0] + 1, room.top[1] + 1)
+                x_m, y_m = (room.top[0] + room.size[0] - 1, room.top[1] + room.size[1] - 1)
+                x_piece = (x_m-x_l)//self.doors_per_side
+                y_piece = (y_m-y_l)//self.doors_per_side
+                # Door positions, order is right, down, left, up
+                if i <= self.num_cols - 1:
+                    if i!=self.num_cols-1:
+                        room.neighbors[0] = self.room_grid[j][i+1]
+                    room.door_pos[0]=[]
+                    for door_pos in self.door_pos_lst[j][i][0]:
+                        room.door_pos[0].append((x_m, y_l+(door_pos*y_piece)))
+                    if i==0:
+                        # room.neighbors[2] = self.room_grid[j][i-1]
+                        room.door_pos[2]=[]
+                        for door_pos in self.door_pos_lst[j][i][2]:
+                            room.door_pos[2].append((x_l-1, y_l+(door_pos*y_piece)))
+                if j <= self.num_rows - 1:
+                    if j!=self.num_rows-1:
+                        room.neighbors[1] = self.room_grid[j+1][i]
+                    room.door_pos[1]=[]
+                    for door_pos in self.door_pos_lst[j][i][1]:
+                        room.door_pos[1].append((x_l+(door_pos*x_piece), y_m))
+                    if j==0:
+                        # room.neighbors[3] = self.room_grid[j-1][i]
+                        room.door_pos[3]=[]
+                        for door_pos in self.door_pos_lst[j][i][3]:
+                            room.door_pos[3].append((x_l+(door_pos*x_piece), y_l-1))
+                if i > 0 and self.room_grid[j][i-1]:
+                    room.neighbors[2] = self.room_grid[j][i-1]
+                    room.door_pos[2] = room.neighbors[2].door_pos[0]
+                # if not self.room_grid[j][i-1]:
+                #     room.neighbors[2] = self.room_grid[j][i-1]
+                #     room.door_pos[2]=[]
+                #     for door_pos in self.door_pos_lst[2]:
+                        # room.door_pos[2].append((x_m, y_l+(door_pos*y_piece)))
+                if j > 0 and self.room_grid[j-1][i]:
+                    room.neighbors[3] = self.room_grid[j-1][i]
+                    room.door_pos[3] = room.neighbors[3].door_pos[1]
+                # if not self.room_grid[j-1][i]:
+                #     room.neighbors[3] = self.room_grid[j-1][i]
+                #     room.door_pos[3]=[]
+                #     for door_pos in self.door_pos_lst[3]:
+                #         room.door_pos[3].append((x_l+(door_pos*x_piece), y_m))
+        # The agent starts in the middle, facing right
+        self.agent_pos = (
+            (self.num_cols // 2) * (self.room_size-1) + (self.room_size // 2),
+            (self.num_rows // 2) * (self.room_size-1) + (self.room_size // 2)
+        )
+        self.agent_dir = 0
+        self.gen_mission()
+
+        # Validate the instructions
+        self.validate_instrs(self.instrs)
+
+
+    def set_door_loc(self, door_idx, door_pos_lst):
+        room.door_pos[door_idx]=[]
+        for door_pos in door_pos_lst:
+            room.door_pos[door_idx].append((x_m, y_l+door_pos))
+                # if door_idx==0:
+                    #room.neighbors[0] = self.room_grid[j][i+1]
+                #     room.door_pos[door_idx]=[]
+                #     for door_pos in door_pos_lst:
+                #         room.door_pos[door_idx].append((x_m, y_l+door_pos))
+                # if door_idx==1:
+                #     #room.neighbors[1] = self.room_grid[j+1][i]
+                #     room.door_pos[1] = (x_l +door_pos, y_m)
+                #
+                # if door_idx==2:
+                #     #room.neighbors[2] = self.room_grid[j][i-1]
+                #     room.door_pos[2] = room.neighbors[2].door_pos[0]
+                # if door_idx==3:
+                #     #room.neighbors[3] = self.room_grid[j-1][i]
+                #     room.door_pos[3] = room.neighbors[3].door_pos[1]
+#set door pos will be called first with predetermined number of doors and then add door will be called with the number of door given in set door pos paramter
+    def add_door(self, i, j, door_idx=None, color=None, locked=None, doorid_on_idx=None):
+        """
+        Add a door to a room, connecting it to a neighbor
+        """
+
+        room = self.get_room(i, j)
+        # print('BOOGIE WOOGIE')
+
+        if door_idx == None:
+            # Need to make sure that there is a neighbor along this wall
+            # and that there is not already a door
+            while True:
+                door_idx = self._rand_int(0, 4)
+                if room.neighbors[door_idx] and room.doors[door_idx][doorid_on_idx] is None:
+                    break
+
+        if color == None:
+            color = self._rand_color()
+
+        if locked is None:
+            locked = self._rand_bool()
+
+        assert room.doors[door_idx][doorid_on_idx] is None, "door already exists"
+        room.locked = locked
+        door = Door(color, is_locked=locked)
+        #print('Door Index: ', door_idx)
+        pos = room.door_pos[door_idx][doorid_on_idx]
+        #print('Door Position: ', door_idx)
+
+        self.grid.set(*pos, door)
+        door.cur_pos = pos
+
+        neighbor = room.neighbors[door_idx]
+        room.doors[door_idx].append(door)
+        if neighbor:
+            neighbor.doors[(door_idx+2) % 4] = door
+
+        return door, pos
+
+    # def reset(self, **kwargs):
+    #     obs = super().reset(**kwargs)
+    #
+    #     # Recreate the verifier
+    #     # self.instrs.reset_verifier(self)
+    #
+    #     # Compute the time step limit based on the maze size and instructions
+    #     nav_time_room = self.room_size ** 2
+    #     nav_time_maze = nav_time_room * self.num_rows * self.num_cols
+    #     num_navs = self.num_navs_needed(self.instrs)
+    #     self.max_steps = num_navs * nav_time_maze
+    #
+    #     return obs
+
+    def gen_mission(self):
+        # import pdb; pdb.set_trace()
+        print('BOOGIE WOOGIE')
+        start_room = 1
+        end_room = 2
+        # rightwalldoors=[0,9]
+        #self.set_door_loc(0, rightwalldoors)
+        for r in range(0, self.num_rows):
+            # For each column of rooms
+            for c in range(0, self.num_cols):
+                room_door_pos_lst = self.door_pos_lst[r][c]
+                room_door_color_lst = self.door_color_lst[r][c]
+                for i in range(len(room_door_pos_lst)):
+                    for j in range(len(room_door_pos_lst[i])):
+                        print(room_door_color_lst[i][j])
+                        # import pdb; pdb.set_trace()
+                        obj, _ = self.add_door(c, r,i,  room_door_color_lst[i][j], locked=False, doorid_on_idx=j)
+        self.place_agent(start_room,0)
+        self.instrs = OpenInstr(ObjDesc('door', 'green'), room=end_room)
+
+
+
+class Level_BlueDoorFourRoomTest(RoomGridLevel):
+    """
+    Go to the red doorThree
+    (always unlocked, in the current room)
+    Note: this level is intentionally meant for debugging and is
+    intentionally kept very simple.
+    """
+
+    def __init__(self, seed=None, doors_per_side=3):
+        self.doors_per_side=doors_per_side-1
+        self.door_pos_lst = [[[[0], [], [], []],[[0,2], [], [], []], [[2],[],[],[]], [[],[],[],[]]]]
+        self.door_color_lst = [[[['red'], [], [], []], [['green', 'blue'], [], [], []], [['yellow'], [], [], []], [[],[],[],[]]]]
+        super().__init__(
+            num_rows=1,
+            num_cols=4,
+            room_size=9,
+            seed=seed
+        )
+
+    def _gen_grid(self, width, height):
+        # Create the grid
+        self.grid = Grid(width, height)
+
+        self.room_grid = []
+        # For each row of rooms
+        for j in range(0, self.num_rows):
+            row = []
+
+            # For each column of rooms
+            for i in range(0, self.num_cols):
+                room = Room(
+                    (i * (self.room_size-1), j * (self.room_size-1)),
+                    (self.room_size, self.room_size)
+                )
+                room.doors = [[None]*self.doors_per_side]*4
+                row.append(room)
+                # Generate the walls for this room
+                self.grid.wall_rect(*room.top, *room.size)
+
+            self.room_grid.append(row)
+        # For each row of rooms
+        # import pdb; pdb.set_trace()
+        for j in range(0, self.num_rows):
+            # For each column of rooms
+            for i in range(0, self.num_cols):
+                room = self.room_grid[j][i]
+
+                x_l, y_l = (room.top[0] + 1, room.top[1] + 1)
+                x_m, y_m = (room.top[0] + room.size[0] - 1, room.top[1] + room.size[1] - 1)
+                x_piece = (x_m-x_l)//self.doors_per_side
+                y_piece = (y_m-y_l)//self.doors_per_side
+                # Door positions, order is right, down, left, up
+                if i <= self.num_cols - 1:
+                    if i!=self.num_cols-1:
+                        room.neighbors[0] = self.room_grid[j][i+1]
+                    room.door_pos[0]=[]
+                    for door_pos in self.door_pos_lst[j][i][0]:
+                        room.door_pos[0].append((x_m, y_l+(door_pos*y_piece)))
+                    if i==0:
+                        # room.neighbors[2] = self.room_grid[j][i-1]
+                        room.door_pos[2]=[]
+                        for door_pos in self.door_pos_lst[j][i][2]:
+                            room.door_pos[2].append((x_l-1, y_l+(door_pos*y_piece)))
+                if j <= self.num_rows - 1:
+                    if j!=self.num_rows-1:
+                        room.neighbors[1] = self.room_grid[j+1][i]
+                    room.door_pos[1]=[]
+                    for door_pos in self.door_pos_lst[j][i][1]:
+                        room.door_pos[1].append((x_l+(door_pos*x_piece), y_m))
+                    if j==0:
+                        # room.neighbors[3] = self.room_grid[j-1][i]
+                        room.door_pos[3]=[]
+                        for door_pos in self.door_pos_lst[j][i][3]:
+                            room.door_pos[3].append((x_l+(door_pos*x_piece), y_l-1))
+                if i > 0 and self.room_grid[j][i-1]:
+                    room.neighbors[2] = self.room_grid[j][i-1]
+                    room.door_pos[2] = room.neighbors[2].door_pos[0]
+                # if not self.room_grid[j][i-1]:
+                #     room.neighbors[2] = self.room_grid[j][i-1]
+                #     room.door_pos[2]=[]
+                #     for door_pos in self.door_pos_lst[2]:
+                        # room.door_pos[2].append((x_m, y_l+(door_pos*y_piece)))
+                if j > 0 and self.room_grid[j-1][i]:
+                    room.neighbors[3] = self.room_grid[j-1][i]
+                    room.door_pos[3] = room.neighbors[3].door_pos[1]
+                # if not self.room_grid[j-1][i]:
+                #     room.neighbors[3] = self.room_grid[j-1][i]
+                #     room.door_pos[3]=[]
+                #     for door_pos in self.door_pos_lst[3]:
+                #         room.door_pos[3].append((x_l+(door_pos*x_piece), y_m))
+        # The agent starts in the middle, facing right
+        self.agent_pos = (
+            (self.num_cols // 2) * (self.room_size-1) + (self.room_size // 2),
+            (self.num_rows // 2) * (self.room_size-1) + (self.room_size // 2)
+        )
+        self.agent_dir = 0
+        self.gen_mission()
+
+        # Validate the instructions
+        self.validate_instrs(self.instrs)
+
+
+    def set_door_loc(self, door_idx, door_pos_lst):
+        room.door_pos[door_idx]=[]
+        for door_pos in door_pos_lst:
+            room.door_pos[door_idx].append((x_m, y_l+door_pos))
+                # if door_idx==0:
+                    #room.neighbors[0] = self.room_grid[j][i+1]
+                #     room.door_pos[door_idx]=[]
+                #     for door_pos in door_pos_lst:
+                #         room.door_pos[door_idx].append((x_m, y_l+door_pos))
+                # if door_idx==1:
+                #     #room.neighbors[1] = self.room_grid[j+1][i]
+                #     room.door_pos[1] = (x_l +door_pos, y_m)
+                #
+                # if door_idx==2:
+                #     #room.neighbors[2] = self.room_grid[j][i-1]
+                #     room.door_pos[2] = room.neighbors[2].door_pos[0]
+                # if door_idx==3:
+                #     #room.neighbors[3] = self.room_grid[j-1][i]
+                #     room.door_pos[3] = room.neighbors[3].door_pos[1]
+#set door pos will be called first with predetermined number of doors and then add door will be called with the number of door given in set door pos paramter
+    def add_door(self, i, j, door_idx=None, color=None, locked=None, doorid_on_idx=None):
+        """
+        Add a door to a room, connecting it to a neighbor
+        """
+
+        room = self.get_room(i, j)
+        # print('BOOGIE WOOGIE')
+
+        if door_idx == None:
+            # Need to make sure that there is a neighbor along this wall
+            # and that there is not already a door
+            while True:
+                door_idx = self._rand_int(0, 4)
+                if room.neighbors[door_idx] and room.doors[door_idx][doorid_on_idx] is None:
+                    break
+
+        if color == None:
+            color = self._rand_color()
+
+        if locked is None:
+            locked = self._rand_bool()
+
+        assert room.doors[door_idx][doorid_on_idx] is None, "door already exists"
+        room.locked = locked
+        door = Door(color, is_locked=locked)
+        #print('Door Index: ', door_idx)
+        pos = room.door_pos[door_idx][doorid_on_idx]
+        #print('Door Position: ', door_idx)
+
+        self.grid.set(*pos, door)
+        door.cur_pos = pos
+
+        neighbor = room.neighbors[door_idx]
+        room.doors[door_idx].append(door)
+        if neighbor:
+            neighbor.doors[(door_idx+2) % 4] = door
+
+        return door, pos
+
+    # def reset(self, **kwargs):
+    #     obs = super().reset(**kwargs)
+    #
+    #     # Recreate the verifier
+    #     # self.instrs.reset_verifier(self)
+    #
+    #     # Compute the time step limit based on the maze size and instructions
+    #     nav_time_room = self.room_size ** 2
+    #     nav_time_maze = nav_time_room * self.num_rows * self.num_cols
+    #     num_navs = self.num_navs_needed(self.instrs)
+    #     self.max_steps = num_navs * nav_time_maze
+    #
+    #     return obs
+
+    def gen_mission(self):
+        # import pdb; pdb.set_trace()
+        print('BOOGIE WOOGIE')
+        start_room = 1
+        end_room = 2
+        # rightwalldoors=[0,9]
+        #self.set_door_loc(0, rightwalldoors)
+        for r in range(0, self.num_rows):
+            # For each column of rooms
+            for c in range(0, self.num_cols):
+                room_door_pos_lst = self.door_pos_lst[r][c]
+                room_door_color_lst = self.door_color_lst[r][c]
+                for i in range(len(room_door_pos_lst)):
+                    for j in range(len(room_door_pos_lst[i])):
+                        print(room_door_color_lst[i][j])
+                        # import pdb; pdb.set_trace()
+                        obj, _ = self.add_door(c, r,i,  room_door_color_lst[i][j], locked=False, doorid_on_idx=j)
+        self.place_agent(start_room,0)
+        self.instrs = OpenInstr(ObjDesc('door', 'blue'), room=end_room)
+
+
+
+class Level_YellowDoorFourRoomTest(RoomGridLevel):
+    """
+    Go to the red doorThree
+    (always unlocked, in the current room)
+    Note: this level is intentionally meant for debugging and is
+    intentionally kept very simple.
+    """
+
+    def __init__(self, seed=None, doors_per_side=3):
+        self.doors_per_side=doors_per_side-1
+        self.door_pos_lst = [[[[0], [], [], []],[[0,2], [], [], []], [[2],[],[],[]], [[],[],[],[]]]]
+        self.door_color_lst = [[[['red'], [], [], []], [['green', 'blue'], [], [], []], [['yellow'], [], [], []], [[],[],[],[]]]]
+        super().__init__(
+            num_rows=1,
+            num_cols=4,
+            room_size=9,
+            seed=seed
+        )
+
+    def _gen_grid(self, width, height):
+        # Create the grid
+        self.grid = Grid(width, height)
+
+        self.room_grid = []
+        # For each row of rooms
+        for j in range(0, self.num_rows):
+            row = []
+
+            # For each column of rooms
+            for i in range(0, self.num_cols):
+                room = Room(
+                    (i * (self.room_size-1), j * (self.room_size-1)),
+                    (self.room_size, self.room_size)
+                )
+                room.doors = [[None]*self.doors_per_side]*4
+                row.append(room)
+                # Generate the walls for this room
+                self.grid.wall_rect(*room.top, *room.size)
+
+            self.room_grid.append(row)
+        # For each row of rooms
+        # import pdb; pdb.set_trace()
+        for j in range(0, self.num_rows):
+            # For each column of rooms
+            for i in range(0, self.num_cols):
+                room = self.room_grid[j][i]
+
+                x_l, y_l = (room.top[0] + 1, room.top[1] + 1)
+                x_m, y_m = (room.top[0] + room.size[0] - 1, room.top[1] + room.size[1] - 1)
+                x_piece = (x_m-x_l)//self.doors_per_side
+                y_piece = (y_m-y_l)//self.doors_per_side
+                # Door positions, order is right, down, left, up
+                if i <= self.num_cols - 1:
+                    if i!=self.num_cols-1:
+                        room.neighbors[0] = self.room_grid[j][i+1]
+                    room.door_pos[0]=[]
+                    for door_pos in self.door_pos_lst[j][i][0]:
+                        room.door_pos[0].append((x_m, y_l+(door_pos*y_piece)))
+                    if i==0:
+                        # room.neighbors[2] = self.room_grid[j][i-1]
+                        room.door_pos[2]=[]
+                        for door_pos in self.door_pos_lst[j][i][2]:
+                            room.door_pos[2].append((x_l-1, y_l+(door_pos*y_piece)))
+                if j <= self.num_rows - 1:
+                    if j!=self.num_rows-1:
+                        room.neighbors[1] = self.room_grid[j+1][i]
+                    room.door_pos[1]=[]
+                    for door_pos in self.door_pos_lst[j][i][1]:
+                        room.door_pos[1].append((x_l+(door_pos*x_piece), y_m))
+                    if j==0:
+                        # room.neighbors[3] = self.room_grid[j-1][i]
+                        room.door_pos[3]=[]
+                        for door_pos in self.door_pos_lst[j][i][3]:
+                            room.door_pos[3].append((x_l+(door_pos*x_piece), y_l-1))
+                if i > 0 and self.room_grid[j][i-1]:
+                    room.neighbors[2] = self.room_grid[j][i-1]
+                    room.door_pos[2] = room.neighbors[2].door_pos[0]
+                # if not self.room_grid[j][i-1]:
+                #     room.neighbors[2] = self.room_grid[j][i-1]
+                #     room.door_pos[2]=[]
+                #     for door_pos in self.door_pos_lst[2]:
+                        # room.door_pos[2].append((x_m, y_l+(door_pos*y_piece)))
+                if j > 0 and self.room_grid[j-1][i]:
+                    room.neighbors[3] = self.room_grid[j-1][i]
+                    room.door_pos[3] = room.neighbors[3].door_pos[1]
+                # if not self.room_grid[j-1][i]:
+                #     room.neighbors[3] = self.room_grid[j-1][i]
+                #     room.door_pos[3]=[]
+                #     for door_pos in self.door_pos_lst[3]:
+                #         room.door_pos[3].append((x_l+(door_pos*x_piece), y_m))
+        # The agent starts in the middle, facing right
+        self.agent_pos = (
+            (self.num_cols // 2) * (self.room_size-1) + (self.room_size // 2),
+            (self.num_rows // 2) * (self.room_size-1) + (self.room_size // 2)
+        )
+        self.agent_dir = 0
+        self.gen_mission()
+
+        # Validate the instructions
+        self.validate_instrs(self.instrs)
+
+
+    def set_door_loc(self, door_idx, door_pos_lst):
+        room.door_pos[door_idx]=[]
+        for door_pos in door_pos_lst:
+            room.door_pos[door_idx].append((x_m, y_l+door_pos))
+                # if door_idx==0:
+                    #room.neighbors[0] = self.room_grid[j][i+1]
+                #     room.door_pos[door_idx]=[]
+                #     for door_pos in door_pos_lst:
+                #         room.door_pos[door_idx].append((x_m, y_l+door_pos))
+                # if door_idx==1:
+                #     #room.neighbors[1] = self.room_grid[j+1][i]
+                #     room.door_pos[1] = (x_l +door_pos, y_m)
+                #
+                # if door_idx==2:
+                #     #room.neighbors[2] = self.room_grid[j][i-1]
+                #     room.door_pos[2] = room.neighbors[2].door_pos[0]
+                # if door_idx==3:
+                #     #room.neighbors[3] = self.room_grid[j-1][i]
+                #     room.door_pos[3] = room.neighbors[3].door_pos[1]
+#set door pos will be called first with predetermined number of doors and then add door will be called with the number of door given in set door pos paramter
+    def add_door(self, i, j, door_idx=None, color=None, locked=None, doorid_on_idx=None):
+        """
+        Add a door to a room, connecting it to a neighbor
+        """
+
+        room = self.get_room(i, j)
+        # print('BOOGIE WOOGIE')
+
+        if door_idx == None:
+            # Need to make sure that there is a neighbor along this wall
+            # and that there is not already a door
+            while True:
+                door_idx = self._rand_int(0, 4)
+                if room.neighbors[door_idx] and room.doors[door_idx][doorid_on_idx] is None:
+                    break
+
+        if color == None:
+            color = self._rand_color()
+
+        if locked is None:
+            locked = self._rand_bool()
+
+        assert room.doors[door_idx][doorid_on_idx] is None, "door already exists"
+        room.locked = locked
+        door = Door(color, is_locked=locked)
+        #print('Door Index: ', door_idx)
+        pos = room.door_pos[door_idx][doorid_on_idx]
+        #print('Door Position: ', door_idx)
+
+        self.grid.set(*pos, door)
+        door.cur_pos = pos
+
+        neighbor = room.neighbors[door_idx]
+        room.doors[door_idx].append(door)
+        if neighbor:
+            neighbor.doors[(door_idx+2) % 4] = door
+
+        return door, pos
+
+    # def reset(self, **kwargs):
+    #     obs = super().reset(**kwargs)
+    #
+    #     # Recreate the verifier
+    #     # self.instrs.reset_verifier(self)
+    #
+    #     # Compute the time step limit based on the maze size and instructions
+    #     nav_time_room = self.room_size ** 2
+    #     nav_time_maze = nav_time_room * self.num_rows * self.num_cols
+    #     num_navs = self.num_navs_needed(self.instrs)
+    #     self.max_steps = num_navs * nav_time_maze
+    #
+    #     return obs
+
+    def gen_mission(self):
+        # import pdb; pdb.set_trace()
+        print('BOOGIE WOOGIE')
+        start_room = 2
+        end_room = 3
+        # rightwalldoors=[0,9]
+        #self.set_door_loc(0, rightwalldoors)
+        for r in range(0, self.num_rows):
+            # For each column of rooms
+            for c in range(0, self.num_cols):
+                room_door_pos_lst = self.door_pos_lst[r][c]
+                room_door_color_lst = self.door_color_lst[r][c]
+                for i in range(len(room_door_pos_lst)):
+                    for j in range(len(room_door_pos_lst[i])):
+                        print(room_door_color_lst[i][j])
+                        # import pdb; pdb.set_trace()
+                        obj, _ = self.add_door(c, r,i,  room_door_color_lst[i][j], locked=False, doorid_on_idx=j)
+        self.place_agent(start_room,0)
+        self.instrs = OpenInstr(ObjDesc('door', 'yellow'), room=end_room)
+
+
+class Level_FourRoomTest(RoomGridLevel):
+    """
+    Go to the red doorThree
+    (always unlocked, in the current room)
+    Note: this level is intentionally meant for debugging and is
+    intentionally kept very simple.
+    """
+
+    def __init__(self, seed=None, doors_per_side=3):
+        self.doors_per_side=doors_per_side-1
+        self.door_pos_lst = [[[[0], [], [], []],[[0,2], [], [], []], [[2],[],[],[]], [[],[],[],[]]]]
+        self.door_color_lst = [[[['red'], [], [], []], [['green', 'blue'], [], [], []], [['yellow'], [], [], []], [[],[],[],[]]]]
+        super().__init__(
+            num_rows=1,
+            num_cols=4,
+            room_size=9,
+            seed=seed
+        )
+
+    def _gen_grid(self, width, height):
+        # Create the grid
+        self.grid = Grid(width, height)
+
+        self.room_grid = []
+        # For each row of rooms
+        for j in range(0, self.num_rows):
+            row = []
+
+            # For each column of rooms
+            for i in range(0, self.num_cols):
+                room = Room(
+                    (i * (self.room_size-1), j * (self.room_size-1)),
+                    (self.room_size, self.room_size)
+                )
+                room.doors = [[None]*self.doors_per_side]*4
+                row.append(room)
+                # Generate the walls for this room
+                self.grid.wall_rect(*room.top, *room.size)
+
+            self.room_grid.append(row)
+        # For each row of rooms
+        # import pdb; pdb.set_trace()
+        for j in range(0, self.num_rows):
+            # For each column of rooms
+            for i in range(0, self.num_cols):
+                room = self.room_grid[j][i]
+
+                x_l, y_l = (room.top[0] + 1, room.top[1] + 1)
+                x_m, y_m = (room.top[0] + room.size[0] - 1, room.top[1] + room.size[1] - 1)
+                x_piece = (x_m-x_l)//self.doors_per_side
+                y_piece = (y_m-y_l)//self.doors_per_side
+                # Door positions, order is right, down, left, up
+                if i <= self.num_cols - 1:
+                    if i!=self.num_cols-1:
+                        room.neighbors[0] = self.room_grid[j][i+1]
+                    room.door_pos[0]=[]
+                    for door_pos in self.door_pos_lst[j][i][0]:
+                        room.door_pos[0].append((x_m, y_l+(door_pos*y_piece)))
+                    if i==0:
+                        # room.neighbors[2] = self.room_grid[j][i-1]
+                        room.door_pos[2]=[]
+                        for door_pos in self.door_pos_lst[j][i][2]:
+                            room.door_pos[2].append((x_l-1, y_l+(door_pos*y_piece)))
+                if j <= self.num_rows - 1:
+                    if j!=self.num_rows-1:
+                        room.neighbors[1] = self.room_grid[j+1][i]
+                    room.door_pos[1]=[]
+                    for door_pos in self.door_pos_lst[j][i][1]:
+                        room.door_pos[1].append((x_l+(door_pos*x_piece), y_m))
+                    if j==0:
+                        # room.neighbors[3] = self.room_grid[j-1][i]
+                        room.door_pos[3]=[]
+                        for door_pos in self.door_pos_lst[j][i][3]:
+                            room.door_pos[3].append((x_l+(door_pos*x_piece), y_l-1))
+                if i > 0 and self.room_grid[j][i-1]:
+                    room.neighbors[2] = self.room_grid[j][i-1]
+                    room.door_pos[2] = room.neighbors[2].door_pos[0]
+                # if not self.room_grid[j][i-1]:
+                #     room.neighbors[2] = self.room_grid[j][i-1]
+                #     room.door_pos[2]=[]
+                #     for door_pos in self.door_pos_lst[2]:
+                        # room.door_pos[2].append((x_m, y_l+(door_pos*y_piece)))
+                if j > 0 and self.room_grid[j-1][i]:
+                    room.neighbors[3] = self.room_grid[j-1][i]
+                    room.door_pos[3] = room.neighbors[3].door_pos[1]
+                # if not self.room_grid[j-1][i]:
+                #     room.neighbors[3] = self.room_grid[j-1][i]
+                #     room.door_pos[3]=[]
+                #     for door_pos in self.door_pos_lst[3]:
+                #         room.door_pos[3].append((x_l+(door_pos*x_piece), y_m))
+        # The agent starts in the middle, facing right
+        self.agent_pos = (
+            (self.num_cols // 2) * (self.room_size-1) + (self.room_size // 2),
+            (self.num_rows // 2) * (self.room_size-1) + (self.room_size // 2)
+        )
+        self.agent_dir = 0
+        self.gen_mission()
+
+        # Validate the instructions
+        self.validate_instrs(self.instrs)
+
+
+    def set_door_loc(self, door_idx, door_pos_lst):
+        room.door_pos[door_idx]=[]
+        for door_pos in door_pos_lst:
+            room.door_pos[door_idx].append((x_m, y_l+door_pos))
+                # if door_idx==0:
+                    #room.neighbors[0] = self.room_grid[j][i+1]
+                #     room.door_pos[door_idx]=[]
+                #     for door_pos in door_pos_lst:
+                #         room.door_pos[door_idx].append((x_m, y_l+door_pos))
+                # if door_idx==1:
+                #     #room.neighbors[1] = self.room_grid[j+1][i]
+                #     room.door_pos[1] = (x_l +door_pos, y_m)
+                #
+                # if door_idx==2:
+                #     #room.neighbors[2] = self.room_grid[j][i-1]
+                #     room.door_pos[2] = room.neighbors[2].door_pos[0]
+                # if door_idx==3:
+                #     #room.neighbors[3] = self.room_grid[j-1][i]
+                #     room.door_pos[3] = room.neighbors[3].door_pos[1]
+#set door pos will be called first with predetermined number of doors and then add door will be called with the number of door given in set door pos paramter
+    def add_door(self, i, j, door_idx=None, color=None, locked=None, doorid_on_idx=None):
+        """
+        Add a door to a room, connecting it to a neighbor
+        """
+
+        room = self.get_room(i, j)
+        # print('BOOGIE WOOGIE')
+
+        if door_idx == None:
+            # Need to make sure that there is a neighbor along this wall
+            # and that there is not already a door
+            while True:
+                door_idx = self._rand_int(0, 4)
+                if room.neighbors[door_idx] and room.doors[door_idx][doorid_on_idx] is None:
+                    break
+
+        if color == None:
+            color = self._rand_color()
+
+        if locked is None:
+            locked = self._rand_bool()
+
+        assert room.doors[door_idx][doorid_on_idx] is None, "door already exists"
+        room.locked = locked
+        door = Door(color, is_locked=locked)
+        #print('Door Index: ', door_idx)
+        pos = room.door_pos[door_idx][doorid_on_idx]
+        #print('Door Position: ', door_idx)
+
+        self.grid.set(*pos, door)
+        door.cur_pos = pos
+
+        neighbor = room.neighbors[door_idx]
+        room.doors[door_idx].append(door)
+        if neighbor:
+            neighbor.doors[(door_idx+2) % 4] = door
+
+        return door, pos
+
+    # def reset(self, **kwargs):
+    #     obs = super().reset(**kwargs)
+    #
+    #     # Recreate the verifier
+    #     # self.instrs.reset_verifier(self)
+    #
+    #     # Compute the time step limit based on the maze size and instructions
+    #     nav_time_room = self.room_size ** 2
+    #     nav_time_maze = nav_time_room * self.num_rows * self.num_cols
+    #     num_navs = self.num_navs_needed(self.instrs)
+    #     self.max_steps = num_navs * nav_time_maze
+    #
+    #     return obs
+
+    def gen_mission(self):
+        # import pdb; pdb.set_trace()
+        print('BOOGIE WOOGIE')
+        start_room = 0
+        end_room = 3
+        # rightwalldoors=[0,9]
+        #self.set_door_loc(0, rightwalldoors)
+        for r in range(0, self.num_rows):
+            # For each column of rooms
+            for c in range(0, self.num_cols):
+                room_door_pos_lst = self.door_pos_lst[r][c]
+                room_door_color_lst = self.door_color_lst[r][c]
+                for i in range(len(room_door_pos_lst)):
+                    for j in range(len(room_door_pos_lst[i])):
+                        print(room_door_color_lst[i][j])
+                        # import pdb; pdb.set_trace()
+                        obj, _ = self.add_door(c, r,i,  room_door_color_lst[i][j], locked=False, doorid_on_idx=j)
+        self.place_agent(start_room,0)
+        self.instrs = OpenInstr(ObjDesc('door', 'yellow'), room=end_room)
+
+
+
 
 class Level_Rm2DoorBC(RoomGridLevel):
     """
@@ -1134,6 +2691,50 @@ class Level_KeyCorridorS6R3(KeyCorridor):
             num_rows=3,
             seed=seed
         )
+
+####################################################
+class Level_OpenOneDoor(RoomGridLevel):
+    """
+    Go to the sole door
+    (always unlocked, in the current room)
+    Note: this level is intentionally meant for debugging and is
+    intentionally kept very simple.
+    """
+
+    def __init__(self, seed=None):
+        super().__init__(
+            num_rows=1,
+            num_cols=2,
+            room_size=5,
+            seed=seed
+        )
+
+    def gen_mission(self):
+        obj, _ = self.add_door(0, 0, 0, locked=False)
+        self.place_agent()
+        self.instrs = OpenInstr(ObjDesc('door'))
+####################################################
+
+####################################################
+class Level_PickupKey(RoomGridLevel):
+    """
+    Pick up the key
+    Rooms have a size of 6
+    """
+
+    def __init__(self, room_size=8, seed=None):
+        super().__init__(
+            room_size=room_size,
+            num_rows=1,
+            num_cols=1,
+            seed=seed
+        )
+
+    def gen_mission(self):
+        obj, _ = self.add_object(0, 0, kind="key")
+        self.place_agent()
+        self.instrs = PickupInstr(ObjDesc(obj.type))
+####################################################
 
 class Level_1RoomS8(RoomGridLevel):
     """
