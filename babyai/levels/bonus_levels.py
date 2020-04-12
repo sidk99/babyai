@@ -809,7 +809,7 @@ class Level_ThreeRoomTest(RoomGridLevel):
 
             self.room_grid.append(row)
         # For each row of rooms
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         for j in range(0, self.num_rows):
             # For each column of rooms
             for i in range(0, self.num_cols):
@@ -956,7 +956,7 @@ class Level_ThreeRoomTest(RoomGridLevel):
                 for i in range(len(room_door_pos_lst)):
                     for j in range(len(room_door_pos_lst[i])):
                         print(room_door_color_lst[i][j])
-                        import pdb; pdb.set_trace()
+                        # import pdb; pdb.set_trace()
                         obj, _ = self.add_door(c, r,i,  room_door_color_lst[i][j], locked=False, doorid_on_idx=j)
         self.place_agent(0, 0)
         self.instrs = OpenInstr(ObjDesc('door', 'yellow'))
@@ -2686,6 +2686,50 @@ class Level_KeyCorridorS6R3(KeyCorridor):
             num_rows=3,
             seed=seed
         )
+
+####################################################
+class Level_OpenOneDoor(RoomGridLevel):
+    """
+    Go to the sole door
+    (always unlocked, in the current room)
+    Note: this level is intentionally meant for debugging and is
+    intentionally kept very simple.
+    """
+
+    def __init__(self, seed=None):
+        super().__init__(
+            num_rows=1,
+            num_cols=2,
+            room_size=5,
+            seed=seed
+        )
+
+    def gen_mission(self):
+        obj, _ = self.add_door(0, 0, 0, locked=False)
+        self.place_agent()
+        self.instrs = OpenInstr(ObjDesc('door'))
+####################################################
+
+####################################################
+class Level_PickupKey(RoomGridLevel):
+    """
+    Pick up the key
+    Rooms have a size of 6
+    """
+
+    def __init__(self, room_size=8, seed=None):
+        super().__init__(
+            room_size=room_size,
+            num_rows=1,
+            num_cols=1,
+            seed=seed
+        )
+
+    def gen_mission(self):
+        obj, _ = self.add_object(0, 0, kind="key")
+        self.place_agent()
+        self.instrs = PickupInstr(ObjDesc(obj.type))
+####################################################
 
 class Level_1RoomS8(RoomGridLevel):
     """
