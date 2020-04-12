@@ -262,13 +262,18 @@ class OpenInstr(ActionInstr):
 
         # Get the contents of the cell in front of the agent
         front_cell = self.env.grid.get(*self.env.front_pos)
-        # import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         for door in self.desc.obj_set:
             #if in the right room
             # TODO : Fix the indexing of room_grid to make general
             inroom = self.env.room_grid[0][self.room].pos_inside(self.env.agent_pos[0], self.env.agent_pos[1]) # Used room_grid[0] since only single row envs
+            inprevroom=False
+            if self.room-1>=0:
+                inprevroom = self.env.room_grid[0][self.room-1].pos_inside(self.env.agent_pos[0], self.env.agent_pos[1])
+            if inroom and inprevroom:
+                print('YUP CAN BE IN TWO ROOMS')
             # TODO: Potential issue, can have successful instance where other doors can also have been opened.
-            if door.is_open and inroom: #front_cell and front_cell is door and
+            if door.is_open and inroom and not inprevroom: #front_cell and front_cell is door and
                 return 'success'
 
         # If in strict mode and the wrong door is opened, failure

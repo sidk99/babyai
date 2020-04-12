@@ -1139,7 +1139,6 @@ class Level_RedDoorFourRoomTest(RoomGridLevel):
 
     def gen_mission(self):
         # import pdb; pdb.set_trace()
-        print('BOOGIE WOOGIE')
         start_room = 0
         end_room = 1
         # rightwalldoors=[0,9]
@@ -1151,7 +1150,7 @@ class Level_RedDoorFourRoomTest(RoomGridLevel):
                 room_door_color_lst = self.door_color_lst[r][c]
                 for i in range(len(room_door_pos_lst)):
                     for j in range(len(room_door_pos_lst[i])):
-                        print(room_door_color_lst[i][j])
+                        # print(room_door_color_lst[i][j])
                         # import pdb; pdb.set_trace()
                         obj, _ = self.add_door(c, r,i,  room_door_color_lst[i][j], locked=False, doorid_on_idx=j)
         self.place_agent(start_room,0)
@@ -1336,7 +1335,6 @@ class Level_GreenDoorFourRoomTest(RoomGridLevel):
 
     def gen_mission(self):
         # import pdb; pdb.set_trace()
-        print('BOOGIE WOOGIE')
         start_room = 1
         end_room = 2
         # rightwalldoors=[0,9]
@@ -1348,7 +1346,7 @@ class Level_GreenDoorFourRoomTest(RoomGridLevel):
                 room_door_color_lst = self.door_color_lst[r][c]
                 for i in range(len(room_door_pos_lst)):
                     for j in range(len(room_door_pos_lst[i])):
-                        print(room_door_color_lst[i][j])
+                        # print(room_door_color_lst[i][j])
                         # import pdb; pdb.set_trace()
                         obj, _ = self.add_door(c, r,i,  room_door_color_lst[i][j], locked=False, doorid_on_idx=j)
         self.place_agent(start_room,0)
@@ -1533,7 +1531,6 @@ class Level_BlueDoorFourRoomTest(RoomGridLevel):
 
     def gen_mission(self):
         # import pdb; pdb.set_trace()
-        print('BOOGIE WOOGIE')
         start_room = 1
         end_room = 2
         # rightwalldoors=[0,9]
@@ -1545,7 +1542,7 @@ class Level_BlueDoorFourRoomTest(RoomGridLevel):
                 room_door_color_lst = self.door_color_lst[r][c]
                 for i in range(len(room_door_pos_lst)):
                     for j in range(len(room_door_pos_lst[i])):
-                        print(room_door_color_lst[i][j])
+                        # print(room_door_color_lst[i][j])
                         # import pdb; pdb.set_trace()
                         obj, _ = self.add_door(c, r,i,  room_door_color_lst[i][j], locked=False, doorid_on_idx=j)
         self.place_agent(start_room,0)
@@ -1730,7 +1727,6 @@ class Level_YellowDoorFourRoomTest(RoomGridLevel):
 
     def gen_mission(self):
         # import pdb; pdb.set_trace()
-        print('BOOGIE WOOGIE')
         start_room = 2
         end_room = 3
         # rightwalldoors=[0,9]
@@ -1742,7 +1738,7 @@ class Level_YellowDoorFourRoomTest(RoomGridLevel):
                 room_door_color_lst = self.door_color_lst[r][c]
                 for i in range(len(room_door_pos_lst)):
                     for j in range(len(room_door_pos_lst[i])):
-                        print(room_door_color_lst[i][j])
+                        # print(room_door_color_lst[i][j])
                         # import pdb; pdb.set_trace()
                         obj, _ = self.add_door(c, r,i,  room_door_color_lst[i][j], locked=False, doorid_on_idx=j)
         self.place_agent(start_room,0)
@@ -1926,7 +1922,6 @@ class Level_FourRoomTest(RoomGridLevel):
 
     def gen_mission(self):
         # import pdb; pdb.set_trace()
-        print('BOOGIE WOOGIE')
         start_room = 0
         end_room = 3
         # rightwalldoors=[0,9]
@@ -1938,7 +1933,7 @@ class Level_FourRoomTest(RoomGridLevel):
                 room_door_color_lst = self.door_color_lst[r][c]
                 for i in range(len(room_door_pos_lst)):
                     for j in range(len(room_door_pos_lst[i])):
-                        print(room_door_color_lst[i][j])
+                        # print(room_door_color_lst[i][j])
                         # import pdb; pdb.set_trace()
                         obj, _ = self.add_door(c, r,i,  room_door_color_lst[i][j], locked=False, doorid_on_idx=j)
         self.place_agent(start_room,0)
