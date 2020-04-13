@@ -977,7 +977,7 @@ class Level_RedDoorFourRoomTest(RoomGridLevel):
         super().__init__(
             num_rows=1,
             num_cols=4,
-            room_size=9,
+            room_size=5,
             seed=seed
         )
 
@@ -1173,7 +1173,7 @@ class Level_GreenDoorFourRoomTest(RoomGridLevel):
         super().__init__(
             num_rows=1,
             num_cols=4,
-            room_size=9,
+            room_size=5,
             seed=seed
         )
 
@@ -1369,7 +1369,7 @@ class Level_BlueDoorFourRoomTest(RoomGridLevel):
         super().__init__(
             num_rows=1,
             num_cols=4,
-            room_size=9,
+            room_size=5,
             seed=seed
         )
 
@@ -1565,7 +1565,7 @@ class Level_YellowDoorFourRoomTest(RoomGridLevel):
         super().__init__(
             num_rows=1,
             num_cols=4,
-            room_size=9,
+            room_size=5,
             seed=seed
         )
 
@@ -1760,7 +1760,7 @@ class Level_FourRoomTest(RoomGridLevel):
         super().__init__(
             num_rows=1,
             num_cols=4,
-            room_size=9,
+            room_size=5,
             seed=seed
         )
 
