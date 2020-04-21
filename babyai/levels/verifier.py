@@ -4,7 +4,7 @@ from enum import Enum
 from gym_minigrid.minigrid import COLOR_NAMES, DIR_TO_VEC
 
 # Object types we are allowed to describe in language
-OBJ_TYPES = ['box', 'ball', 'key', 'door']
+OBJ_TYPES = ['box', 'ball', 'key', 'door', 'goal', 'goalcolor']
 
 # Object types we are allowed to describe in language
 OBJ_TYPES_NOT_DOOR = list(filter(lambda t: t is not 'door', OBJ_TYPES))
@@ -307,7 +307,44 @@ class GoToInstr(ActionInstr):
         # For each object position
         for pos in self.desc.obj_poss:
             # If the agent is next to (and facing) the object
+            import pdb; pdb.set_trace()
             if np.array_equal(pos, self.env.front_pos):
+                return 'success'
+
+        return 'continue'
+
+
+class GoToGoalInstr(ActionInstr):
+    """
+    Go next to (and look towards) an object matching a given description
+    eg: go to the door
+    """
+
+    def __init__(self, obj_desc):
+        super().__init__()
+        self.desc = obj_desc
+
+    def surface(self, env):
+        return 'go to ' + self.desc.surface(env)
+
+    def reset_verifier(self, env):
+        super().reset_verifier(env)
+
+        # Identify set of possible matching objects in the environment
+        self.desc.find_matching_objs(env)
+
+    def verify_action(self, action):
+        # For each object position
+        # import pdb; pdb.set_trace()
+        # typeofnext=self.env.grid.get(*self.env.front_pos)
+        # if typeofnext!=None:
+        #     print(typeofnext.type)
+        # print('THIS IS IT ', self.desc )
+        # print('THIS IS IT ', self.desc.__dict__)
+        for pos in self.desc.obj_poss:
+            # If the agent is next to (and facing) the object
+            if np.array_equal(pos, self.env.agent_pos):
+                # print('USEDDDD')
                 return 'success'
 
         return 'continue'
