@@ -3384,7 +3384,7 @@ class Level_RedGoalTwoRoomTest(RoomGridLevel):
 
     def __init__(self, seed=None, doors_per_side=3):
         self.doors_per_side=doors_per_side-1
-        self.door_pos_lst = [[[[0], [], [], []],[[], [], [], []]]]
+        self.door_pos_lst = [[[[1], [], [], []],[[], [], [], []]]]
         self.door_color_lst = [[[['red'], [], [], []], [[], [], [], []]]]
         self.door_lock_lst = [[[[False], [], [], []], [[], [], [], []]]]
         self.room_objects = [[[],['goalcolor', 'goalcolor']]]
@@ -3617,7 +3617,7 @@ class Level_GreenGoalTwoRoomTest(RoomGridLevel):
 
     def __init__(self, seed=None, doors_per_side=3):
         self.doors_per_side=doors_per_side-1
-        self.door_pos_lst = [[[[0], [], [], []],[[], [], [], []]]]
+        self.door_pos_lst = [[[[1], [], [], []],[[], [], [], []]]]
         self.door_color_lst = [[[['red'], [], [], []], [[], [], [], []]]]
         self.door_lock_lst = [[[[False], [], [], []], [[], [], [], []]]]
         self.room_objects = [[[],['goalcolor', 'goalcolor']]]
@@ -3847,7 +3847,7 @@ class Level_GreenTwoRoomTest(RoomGridLevel):
 
     def __init__(self, seed=None, doors_per_side=3):
         self.doors_per_side=doors_per_side-1
-        self.door_pos_lst = [[[[0], [], [], []],[[], [], [], []]]]
+        self.door_pos_lst = [[[[1], [], [], []],[[], [], [], []]]]
         self.door_color_lst = [[[['red'], [], [], []], [[], [], [], []]]]
         self.door_lock_lst = [[[[False], [], [], []], [[], [], [], []]]]
         self.room_objects = [[[],['goalcolor', 'goalcolor']]]
@@ -4078,7 +4078,7 @@ class Level_BlueGoalTwoRoomTest(RoomGridLevel):
 
     def __init__(self, seed=None, doors_per_side=3):
         self.doors_per_side=doors_per_side-1
-        self.door_pos_lst = [[[[0], [], [], []],[[], [], [], []]]]
+        self.door_pos_lst = [[[[1], [], [], []],[[], [], [], []]]]
         self.door_color_lst = [[[['red'], [], [], []], [[], [], [], []]]]
         self.door_lock_lst = [[[[False], [], [], []], [[], [], [], []]]]
         self.room_objects = [[[],['goalcolor', 'goalcolor']]]
@@ -4309,7 +4309,7 @@ class Level_BlueTwoRoomTest(RoomGridLevel):
 
     def __init__(self, seed=None, doors_per_side=3):
         self.doors_per_side=doors_per_side-1
-        self.door_pos_lst = [[[[0], [], [], []],[[], [], [], []]]]
+        self.door_pos_lst = [[[[1], [], [], []],[[], [], [], []]]]
         self.door_color_lst = [[[['red'], [], [], []], [[], [], [], []]]]
         self.door_lock_lst = [[[[False], [], [], []], [[], [], [], []]]]
         self.room_objects = [[[],['goalcolor', 'goalcolor']]]
