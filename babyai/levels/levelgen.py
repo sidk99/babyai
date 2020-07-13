@@ -5,6 +5,9 @@ import gym
 from gym_minigrid.roomgrid import RoomGrid
 from gym_minigrid.minigrid import Door
 from .verifier import *
+from itertools import chain
+import collections
+ObsInfotuple = collections.namedtuple('ObsInfotuple', 'room obs')
 
 
 class RejectSampling(Exception):
@@ -44,12 +47,21 @@ class RoomGridLevel(RoomGrid):
         nav_time_maze = nav_time_room * self.num_rows * self.num_cols
         num_navs = self.num_navs_needed(self.instrs)
         self.max_steps = num_navs * nav_time_maze
-
+        curr_room=self.room_from_pos(self.agent_pos[0],self.agent_pos[1])
+        listed_roomgrid = list(chain(*self.room_grid))
+        # import pdb; pdb.set_trace()
+        room_num=listed_roomgrid.index(curr_room)
+        # print('---------------ROOM NUM: ' + str(room_num)+ '-----------')
+        obs['image'] = ObsInfotuple(room = room_num, obs = obs['image'] )
         return obs
 
-    def step(self, action):
-        obs, reward, done, info = super().step(action)
 
+    def step(self, action):
+        ''' To Be used by HRL Vickery code so avoid any other dependency issues
+        - returns obs in named Tuple
+        - with room num agent is in'''
+
+        obs, reward, done, info = super().step(action)
         # If we drop an object, we need to update its position in the environment
         if action == self.actions.drop:
             self.update_objs_poss()
@@ -63,7 +75,12 @@ class RoomGridLevel(RoomGrid):
         elif status is 'failure':
             done = True
             reward = 0
-
+        curr_room=self.room_from_pos(self.agent_pos[0],self.agent_pos[1])
+        listed_roomgrid = list(chain(*self.room_grid))
+        # import pdb; pdb.set_trace()
+        room_num=listed_roomgrid.index(curr_room)
+        # print('---------------ROOM NUM: ' + str(room_num)+ '-----------')
+        obs['image']= ObsInfotuple(room = room_num, obs = obs['image'] )
         return obs, reward, done, info
 
     def update_objs_poss(self, instr=None):
