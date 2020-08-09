@@ -355,6 +355,78 @@ class Level_FThreeRoomTest(HRLTransferThreeRoomTest):
             instrs =  OpenInstr(ObjDesc('door', 'purple'), room=1),
             args=args)
 
+class Level_ABCThreeRoomTest(HRLTransferThreeRoomTest):
+    """
+    Subtask ABC in transfer learning env setup
+    """
+
+    def __init__(self, seed=None, doors_per_side=3):
+        args = {'door_pos_lst': [[[[0,2], [], [], []],[[0,2], [], [], []], [[],[],[],[]]]],
+                'door_color_lst':  [[[['red', 'purple'], [], [], []], [['grey', 'yellow'], [], [], []], [[], [], [], []]]],
+                'door_lock_lst': [[[[False, True], [], [], []], [[True, True], [], [], []], [[], [], [], []]]],
+                'room_objects': [[[],['key'],['goalcolor', 'goalcolor']]],
+                'room_objects_color': [[[], ['grey'], ['blue', 'green']]],
+                'width': None,
+                'height': None}
+        super().__init__(
+            start_room = 0,
+            instrs =  GoToGoalInstr(ObjDesc('box', 'green')),#, room=end_room),,
+            args=args)
+
+class Level_ABDThreeRoomTest(HRLTransferThreeRoomTest):
+    """
+    Subtask ABD in transfer learning env setup
+    """
+
+    def __init__(self, seed=None, doors_per_side=3):
+        args = {'door_pos_lst': [[[[0,2], [], [], []],[[0,2], [], [], []], [[],[],[],[]]]],
+                'door_color_lst':  [[[['red', 'purple'], [], [], []], [['grey', 'yellow'], [], [], []], [[], [], [], []]]],
+                'door_lock_lst': [[[[False, True], [], [], []], [[True, True], [], [], []], [[], [], [], []]]],
+                'room_objects': [[[],['key'],['goalcolor', 'goalcolor']]],
+                'room_objects_color': [[[], ['grey'], ['blue', 'green']]],
+                'width': None,
+                'height': None}
+        super().__init__(
+            start_room = 0,
+            instrs =  GoToGoalInstr(ObjDesc('box', 'blue')),#, room=end_room),,
+            args=args)
+
+class Level_AECThreeRoomTest(HRLTransferThreeRoomTest):
+    """
+    Subtask AEC in transfer learning env setup
+    """
+
+    def __init__(self, seed=None, doors_per_side=3):
+        args = {'door_pos_lst': [[[[0,2], [], [], []],[[0,2], [], [], []], [[],[],[],[]]]],
+                'door_color_lst':  [[[['red', 'purple'], [], [], []], [['grey', 'yellow'], [], [], []], [[], [], [], []]]],
+                'door_lock_lst': [[[[False, True], [], [], []], [[True, True], [], [], []], [[], [], [], []]]],
+                'room_objects': [[[],['key'],['goalcolor', 'goalcolor']]],
+                'room_objects_color': [[[], ['yellow'], ['blue', 'green']]],
+                'width': None,
+                'height': None}
+        super().__init__(
+            start_room = 0,
+            instrs =  GoToGoalInstr(ObjDesc('box', 'green')),#, room=end_room),,
+            args=args)
+
+class Level_FBCThreeRoomTest(HRLTransferThreeRoomTest):
+    """
+    Subtask FBC in transfer learning env setup
+    """
+
+    def __init__(self, seed=None, doors_per_side=3):
+        args = {'door_pos_lst': [[[[0,2], [], [], []],[[0,2], [], [], []], [[],[],[],[]]]],
+                'door_color_lst':  [[[['red', 'purple'], [], [], []], [['grey', 'yellow'], [], [], []], [[], [], [], []]]],
+                'door_lock_lst': [[[[True, False], [], [], []], [[True, True], [], [], []], [[], [], [], []]]],
+                'room_objects': [[[],['key'],['goalcolor', 'goalcolor']]],
+                'room_objects_color': [[[], ['grey'], ['blue', 'green']]],
+                'width': None,
+                'height': None}
+        super().__init__(
+            start_room = 0,
+            instrs =  GoToGoalInstr(ObjDesc('box', 'green')),#, room=end_room),,
+            args=args)
+
 for name, level in list(globals().items()):
     if name.startswith('Level_'):
         level.is_bonus = True
