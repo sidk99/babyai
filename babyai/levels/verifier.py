@@ -334,6 +334,8 @@ class GoToGoalInstr(ActionInstr):
         self.desc.find_matching_objs(env)
 
     def verify_action(self, action):
+        if action != self.env.actions.done: #Changed to Done
+            return 'continue'
         # For each object position
         # import pdb; pdb.set_trace()
         # typeofnext=self.env.grid.get(*self.env.front_pos)
