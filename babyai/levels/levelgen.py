@@ -17,6 +17,131 @@ class RejectSampling(Exception):
 
     pass
 
+class RoomGridLevelShifted(RoomGrid):
+    """
+    Base for levels based on RoomGrid
+    A level, given a random seed, generates missions generated from
+    one or more patterns. Levels should produce a family of missions
+    of approximately similar difficulty.
+    """
+
+    def __init__(
+        self,
+        room_size=8,
+        **kwargs
+    ):
+        super().__init__(
+            room_size=room_size,
+            **kwargs
+        )
+
+    def add_action ( self, action='Stop'):
+        if action=='Stop':
+            action= self.env.add_action('Done')
+
+        self.env.action_space.append(action)
+
+
+
+    def reset(self, **kwargs):
+        obs = super().reset(**kwargs)
+
+        # Recreate the verifier
+        self.instrs.reset_verifier(self)
+
+        # Compute the time step limit based on the maze size and instructions
+        nav_time_room = self.room_size ** 2
+        nav_time_maze = nav_time_room * self.num_rows * self.num_cols
+        num_navs = self.num_navs_needed(self.instrs)
+        self.max_steps = num_navs * nav_time_maze
+
+        return obs
+
+    def step(self, action):
+        obs, reward, done, info = super().step(action)
+
+        # If we drop an object, we need to update its position in the environment
+        if action == self.actions.drop:
+            self.update_objs_poss()
+
+        # If we've successfully completed the mission
+        status = self.instrs.verify(action)
+
+        if status is 'success':
+            done = True
+            reward = self._reward()
+        elif status is 'failure':
+            done = True
+            reward = 0
+
+        return obs, reward, done, info
+
+    def update_objs_poss(self, instr=None):
+        if instr is None:
+            instr = self.instrs
+        if isinstance(instr, BeforeInstr) or isinstance(instr, AndInstr) or isinstance(instr, AfterInstr):
+            self.update_objs_poss(instr.instr_a)
+            self.update_objs_poss(instr.instr_b)
+        else:
+            instr.update_objs_poss()
+
+    def _gen_grid(self, width, height):
+        # We catch RecursionError to deal with rare cases where
+        # rejection sampling gets stuck in an infinite loop
+        while True:
+            try:
+                super()._gen_grid(width, height)
+
+                # Generate the mission
+                self.gen_mission()
+
+                # Validate the instructions
+                self.validate_instrs(self.instrs)
+
+            except RecursionError as error:
+                print('Timeout during mission generation:', error)
+                continue
+
+            except RejectSampling as error:
+                print('Sampling rejected:', error)
+                continue
+
+        # Generate the surrounding walls
+        self.grid.wall_rect(0, 0, width, height)
+
+        # Generate the 4 doors at random positions
+        doorPos = []
+        doorPos.append((self._rand_int(2, width-2), 0))
+        doorPos.append((self._rand_int(2, width-2), height-1))
+        doorPos.append((0, self._rand_int(2, height-2)))
+        doorPos.append((width-1, self._rand_int(2, height-2)))
+
+        # Generate the door colors
+        doorColors = []
+        while len(doorColors) < len(doorPos):
+            color = self._rand_elem(COLOR_NAMES)
+            if color in doorColors:
+                continue
+            doorColors.append(color)
+
+        # Place the doors in the grid
+        for idx, pos in enumerate(doorPos):
+            color = doorColors[idx]
+            self.grid.set(*pos, Door(color))
+
+        # Randomize the agent start position and orientation
+        self.place_agent(size=(width, height))
+
+        # Select a random target door
+        doorIdx = self._rand_int(0, len(doorPos))
+        self.target_pos = doorPos[doorIdx]
+        self.target_color = doorColors[doorIdx]
+
+        # Generate the mission string
+        self.mission = 'go to the %s door' % self.target_color
+        # Generate the surface form for the instructions
+        self.surface = self.instrs.surface(self)
+        self.mission = self.surface
 
 class RoomGridLevel(RoomGrid):
     """
