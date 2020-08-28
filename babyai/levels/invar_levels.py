@@ -377,6 +377,132 @@ class Level_Invar1Test(InvarianceTest):
             start_room = [0,1],
             instrs = GoToGoalInstr(ObjDesc('box', 'blue')),#, room=end_room),
             args=args)
+
+class Level_Invar1KeyTest(InvarianceTest):
+    """
+    Subtask A in transfer learning env setup
+    """
+
+    def __init__(self, seed=None, doors_per_side=3):
+        args = {'door_pos_lst': [[[[], [], [], []],   [[], [1], [], []],   [[],[],[],[]]], [[[1], [], [], []],   [[1], [1], [], []],   [[],[],[],[]]], [[[], [], [], []],   [[], [], [], []],   [[],[],[],[]]]],
+                'door_color_lst':  [[[[], [], [], []], [[], ['yellow'], [], []], [[], [], [], []]], [[['red'], [], [], []], [['green'], ['blue'], [], []], [[], [], [], []]], [[[], [], [], []], [[], [], [], []], [[], [], [], []]]],
+                'door_lock_lst': [[[[], [], [], []], [[], [False], [], []], [[], [], [], []]], [[[False], [], [], []], [[False], [False], [], []], [[], [], [], []]], [[[], [], [], []], [[], [], [], []], [[], [], [], []]]],
+                'room_objects': [[[],[],[]], [[],[['key', 0]],[]], [[],[],[]]],
+                'room_objects_color': [[[], [], []], [[], ['blue'], []], [[], [], []]],
+                'width': None,
+                'height': None}
+        super().__init__(
+            start_room = [0,1],
+            instrs =  OpenInstrTwoRoom(ObjDesc('door', 'blue'), room=[2,1]),
+            args=args)
+
+class Level_Invar2Test(InvarianceTest):
+    """
+    Subtask A in transfer learning env setup
+    """
+
+    def __init__(self, seed=None, doors_per_side=3):
+        args = {'door_pos_lst': [[[[], [], [], []],   [[], [1], [], []],   [[],[],[],[]]], [[[1], [], [], []],   [[1], [1], [], []],   [[],[],[],[]]], [[[], [], [], []],   [[], [], [], []],   [[],[],[],[]]]],
+                'door_color_lst':  [[[[], [], [], []], [[], ['yellow'], [], []], [[], [], [], []]], [[['red'], [], [], []], [['green'], ['blue'], [], []], [[], [], [], []]], [[[], [], [], []], [[], [], [], []], [[], [], [], []]]],
+                'door_lock_lst': [[[[], [], [], []], [[], [False], [], []], [[], [], [], []]], [[[False], [], [], []], [[False], [False], [], []], [[], [], [], []]], [[[], [], [], []], [[], [], [], []], [[], [], [], []]]],
+                'room_objects': [[[],[],[]], [[],[],[['goalcolor',(-1,0)]]], [[],[['goalcolor',(0,-1)]],[]]],
+                'room_objects_color': [[[], [], []], [[], [], ['green']], [[], ['blue'], []]],
+                'width': None,
+                'height': None}
+        super().__init__(
+            start_room = [1,0],
+            instrs = GoToGoalInstr(ObjDesc('box', 'green')),#, room=end_room),
+            args=args)
+
+class Level_Invar2KeyTest(InvarianceTest):
+    """
+    Subtask A in transfer learning env setup
+    """
+
+    def __init__(self, seed=None, doors_per_side=3):
+        args = {'door_pos_lst': [[[[], [], [], []],   [[], [1], [], []],   [[],[],[],[]]], [[[1], [], [], []],   [[1], [1], [], []],   [[],[],[],[]]], [[[], [], [], []],   [[], [], [], []],   [[],[],[],[]]]],
+                'door_color_lst':  [[[[], [], [], []], [[], ['yellow'], [], []], [[], [], [], []]], [[['red'], [], [], []], [['green'], ['blue'], [], []], [[], [], [], []]], [[[], [], [], []], [[], [], [], []], [[], [], [], []]]],
+                'door_lock_lst': [[[[], [], [], []], [[], [False], [], []], [[], [], [], []]], [[[False], [], [], []], [[False], [False], [], []], [[], [], [], []]], [[[], [], [], []], [[], [], [], []], [[], [], [], []]]],
+                'room_objects': [[[],[],[]], [[],[['key', 0]],[]], [[],[],[]]],
+                'room_objects_color': [[[], [], []], [[], ['green'], []], [[], [], []]],
+                'width': None,
+                'height': None}
+        super().__init__(
+            start_room = [1,0],
+            instrs =  OpenInstrTwoRoom(ObjDesc('door', 'green'), room=[1,2]),
+            args=args)
+
+class Level_Parallel1Test(InvarianceTest):
+    """
+    Subtask A in transfer learning env setup
+    """
+
+    def __init__(self, seed=None, doors_per_side=3):
+        args = {'door_pos_lst': [[[[], [], [], []],   [[], [1], [], []],   [[],[],[],[]]], [[[1], [], [], []],   [[1], [1], [], []],   [[],[],[],[]]], [[[], [], [], []],   [[], [], [], []],   [[],[],[],[]]]],
+                'door_color_lst':  [[[[], [], [], []], [[], ['yellow'], [], []], [[], [], [], []]], [[['red'], [], [], []], [['green'], ['blue'], [], []], [[], [], [], []]], [[[], [], [], []], [[], [], [], []], [[], [], [], []]]],
+                'door_lock_lst': [[[[], [], [], []], [[], [False], [], []], [[], [], [], []]], [[[False], [], [], []], [[False], [False], [], []], [[], [], [], []]], [[[], [], [], []], [[], [], [], []], [[], [], [], []]]],
+                'room_objects': [[[],[],[]], [[],[],[['goalcolor',(-1,0)]]], [[],[['goalcolor',(0,-1)]],[]]],
+                'room_objects_color': [[[], [], []], [[], [], ['green']], [[], ['blue'], []]],
+                'width': None,
+                'height': None}
+        super().__init__(
+            start_room = [0,1],
+            instrs = GoToGoalInstr(ObjDesc('box', 'green')),#, room=end_room),
+            args=args)
+
+class Level_Parallel1KeyTest(InvarianceTest):
+    """
+    Subtask A in transfer learning env setup
+    """
+
+    def __init__(self, seed=None, doors_per_side=3):
+        args = {'door_pos_lst': [[[[], [], [], []],   [[], [1], [], []],   [[],[],[],[]]], [[[1], [], [], []],   [[1], [1], [], []],   [[],[],[],[]]], [[[], [], [], []],   [[], [], [], []],   [[],[],[],[]]]],
+                'door_color_lst':  [[[[], [], [], []], [[], ['yellow'], [], []], [[], [], [], []]], [[['red'], [], [], []], [['green'], ['blue'], [], []], [[], [], [], []]], [[[], [], [], []], [[], [], [], []], [[], [], [], []]]],
+                'door_lock_lst': [[[[], [], [], []], [[], [False], [], []], [[], [], [], []]], [[[False], [], [], []], [[False], [False], [], []], [[], [], [], []]], [[[], [], [], []], [[], [], [], []], [[], [], [], []]]],
+                'room_objects': [[[],[],[]], [[],[['key', 0]],[]], [[],[],[]]],
+                'room_objects_color': [[[], [], []], [[], ['green'], []], [[], [], []]],
+                'width': None,
+                'height': None}
+        super().__init__(
+            start_room = [0,1],
+            instrs =  OpenInstrTwoRoom(ObjDesc('door', 'green'), room=[1,2]),
+            args=args)
+
+class Level_Parallel2Test(InvarianceTest):
+    """
+    Subtask A in transfer learning env setup
+    """
+
+    def __init__(self, seed=None, doors_per_side=3):
+        args = {'door_pos_lst': [[[[], [], [], []],   [[], [1], [], []],   [[],[],[],[]]], [[[1], [], [], []],   [[1], [1], [], []],   [[],[],[],[]]], [[[], [], [], []],   [[], [], [], []],   [[],[],[],[]]]],
+                'door_color_lst':  [[[[], [], [], []], [[], ['yellow'], [], []], [[], [], [], []]], [[['red'], [], [], []], [['green'], ['blue'], [], []], [[], [], [], []]], [[[], [], [], []], [[], [], [], []], [[], [], [], []]]],
+                'door_lock_lst': [[[[], [], [], []], [[], [False], [], []], [[], [], [], []]], [[[False], [], [], []], [[False], [False], [], []], [[], [], [], []]], [[[], [], [], []], [[], [], [], []], [[], [], [], []]]],
+                'room_objects': [[[],[],[]], [[],[],[['goalcolor',(-1,0)]]], [[],[['goalcolor',(0,-1)]],[]]],
+                'room_objects_color': [[[], [], []], [[], [], ['green']], [[], ['blue'], []]],
+                'width': None,
+                'height': None}
+        super().__init__(
+            start_room = [1,0],
+            instrs = GoToGoalInstr(ObjDesc('box', 'blue')),#, room=end_room),
+            args=args)
+
+class Level_Parallel2KeyTest(InvarianceTest):
+    """
+    Subtask A in transfer learning env setup
+    """
+
+    def __init__(self, seed=None, doors_per_side=3):
+        args = {'door_pos_lst': [[[[], [], [], []],   [[], [1], [], []],   [[],[],[],[]]], [[[1], [], [], []],   [[1], [1], [], []],   [[],[],[],[]]], [[[], [], [], []],   [[], [], [], []],   [[],[],[],[]]]],
+                'door_color_lst':  [[[[], [], [], []], [[], ['yellow'], [], []], [[], [], [], []]], [[['red'], [], [], []], [['green'], ['blue'], [], []], [[], [], [], []]], [[[], [], [], []], [[], [], [], []], [[], [], [], []]]],
+                'door_lock_lst': [[[[], [], [], []], [[], [False], [], []], [[], [], [], []]], [[[False], [], [], []], [[False], [False], [], []], [[], [], [], []]], [[[], [], [], []], [[], [], [], []], [[], [], [], []]]],
+                'room_objects': [[[],[],[]], [[],[['key', 0]],[]], [[],[],[]]],
+                'room_objects_color': [[[], [], []], [[], ['blue'], []], [[], [], []]],
+                'width': None,
+                'height': None}
+        super().__init__(
+            start_room = [1,0],
+            instrs =  OpenInstrTwoRoom(ObjDesc('door', 'blue'), room=[2,1]),
+            args=args)
 #
 # class Level_APrimeThreeRoomTest(HRLTransferThreeRoomTest):
 #     """
