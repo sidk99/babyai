@@ -3374,8 +3374,7 @@ class Level_BlueKeyBlueDoorThreeRoomTest(RoomGridLevel):
         self.place_agent(start_room,0)
         self.instrs = OpenInstr(ObjDesc('door', 'blue'), room=end_room)
 
-<<<<<<< HEAD
-=======
+
 class Level_RedGoalTwoRoomTest(RoomGridLevel):
     """
     Go to the red doorThree
@@ -4533,6 +4532,8 @@ class Level_BlueTwoRoomTest(RoomGridLevel):
 
         # self.instrs = OpenInstr(ObjDesc('door', 'red'), room=end_room)
 >>>>>>> 9e787f20051ef74cf11d692c8e595f34c0726d42
+=======
+>>>>>>> 6667a33e6733b39ccbe3ac49b19ade4db4b102a6
 
 
 class Level_BlueThreeRoomTest(RoomGridLevel):
