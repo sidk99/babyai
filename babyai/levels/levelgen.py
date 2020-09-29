@@ -5,9 +5,12 @@ import gym
 from gym_minigrid.roomgrid import RoomGrid
 from gym_minigrid.minigrid import Door
 from .verifier import *
+<<<<<<< HEAD
 from itertools import chain
 import collections
 ObsInfotuple = collections.namedtuple('ObsInfotuple', 'room obs')
+=======
+>>>>>>> 9e787f20051ef74cf11d692c8e595f34c0726d42
 
 
 class RejectSampling(Exception):
@@ -48,6 +51,10 @@ class RoomGridLevelShifted(RoomGrid):
 
         # Recreate the verifier
         self.instrs.reset_verifier(self)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9e787f20051ef74cf11d692c8e595f34c0726d42
         # Compute the time step limit based on the maze size and instructions
         nav_time_room = self.room_size ** 2
         nav_time_maze = nav_time_room * self.num_rows * self.num_cols
@@ -165,11 +172,16 @@ class RoomGridLevel(RoomGrid):
 
         # Recreate the verifier
         self.instrs.reset_verifier(self)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9e787f20051ef74cf11d692c8e595f34c0726d42
         # Compute the time step limit based on the maze size and instructions
         nav_time_room = self.room_size ** 2
         nav_time_maze = nav_time_room * self.num_rows * self.num_cols
         num_navs = self.num_navs_needed(self.instrs)
         self.max_steps = num_navs * nav_time_maze
+<<<<<<< HEAD
         curr_room=self.room_from_pos(self.agent_pos[0],self.agent_pos[1])
         listed_roomgrid = list(chain(*self.room_grid))
         # import pdb; pdb.set_trace()
@@ -185,6 +197,14 @@ class RoomGridLevel(RoomGrid):
         - with room num agent is in'''
 
         obs, reward, done, info = super().step(action)
+=======
+
+        return obs
+
+    def step(self, action):
+        obs, reward, done, info = super().step(action)
+
+>>>>>>> 9e787f20051ef74cf11d692c8e595f34c0726d42
         # If we drop an object, we need to update its position in the environment
         if action == self.actions.drop:
             self.update_objs_poss()
@@ -198,12 +218,16 @@ class RoomGridLevel(RoomGrid):
         elif status is 'failure':
             done = True
             reward = 0
+<<<<<<< HEAD
         curr_room=self.room_from_pos(self.agent_pos[0],self.agent_pos[1])
         listed_roomgrid = list(chain(*self.room_grid))
         # import pdb; pdb.set_trace()
         room_num=listed_roomgrid.index(curr_room)
         # print('---------------ROOM NUM: ' + str(room_num)+ '-----------')
         obs['image']= ObsInfotuple(room = room_num, obs = obs['image'] )
+=======
+
+>>>>>>> 9e787f20051ef74cf11d692c8e595f34c0726d42
         return obs, reward, done, info
 
     def update_objs_poss(self, instr=None):

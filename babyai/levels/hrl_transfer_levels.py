@@ -338,8 +338,11 @@ class Level_CThreeRoomTest(HRLTransferThreeRoomTest):
             instrs = GoToGoalInstr(ObjDesc('box', 'green')),#, room=end_room),
             args=args)
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 9e787f20051ef74cf11d692c8e595f34c0726d42
 class Level_DThreeRoomTest(HRLTransferThreeRoomTest):
     """
     Subtask D in transfer learning env setup
@@ -430,6 +433,7 @@ class Level_ABThreeRoomTest(HRLTransferThreeRoomTest):
             instrs = OpenInstr(ObjDesc('door', 'grey'), room=2),
             args=args)
 
+<<<<<<< HEAD
 class Level_APrimeBPrimeThreeRoomTest(HRLTransferThreeRoomTest):
     """
     Subtask B in transfer learning env setup
@@ -466,6 +470,8 @@ class Level_APrimeEPrimeThreeRoomTest(HRLTransferThreeRoomTest):
             instrs = OpenInstr(ObjDesc('door', 'yellow'), room=2),
             args=args)
 
+=======
+>>>>>>> 9e787f20051ef74cf11d692c8e595f34c0726d42
 class Level_BCThreeRoomTest(HRLTransferThreeRoomTest):
     """
     Subtask BC in transfer learning env setup
@@ -502,6 +508,7 @@ class Level_ABCThreeRoomTest(HRLTransferThreeRoomTest):
             instrs =  GoToGoalInstr(ObjDesc('box', 'green')),#, room=end_room),,
             args=args)
 
+<<<<<<< HEAD
 class Level_APrimeBPrimeCThreeRoomTest(HRLTransferThreeRoomTest):
     """
     Subtask ABC in transfer learning env setup
@@ -521,6 +528,8 @@ class Level_APrimeBPrimeCThreeRoomTest(HRLTransferThreeRoomTest):
             args=args)
 
 
+=======
+>>>>>>> 9e787f20051ef74cf11d692c8e595f34c0726d42
 class Level_ABDThreeRoomTest(HRLTransferThreeRoomTest):
     """
     Subtask ABD in transfer learning env setup
