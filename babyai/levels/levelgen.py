@@ -48,7 +48,6 @@ class RoomGridLevelShifted(RoomGrid):
 
         # Recreate the verifier
         self.instrs.reset_verifier(self)
-
         # Compute the time step limit based on the maze size and instructions
         nav_time_room = self.room_size ** 2
         nav_time_maze = nav_time_room * self.num_rows * self.num_cols
@@ -166,7 +165,6 @@ class RoomGridLevel(RoomGrid):
 
         # Recreate the verifier
         self.instrs.reset_verifier(self)
-
         # Compute the time step limit based on the maze size and instructions
         nav_time_room = self.room_size ** 2
         nav_time_maze = nav_time_room * self.num_rows * self.num_cols
@@ -193,7 +191,8 @@ class RoomGridLevel(RoomGrid):
 
         # If we've successfully completed the mission
         status = self.instrs.verify(action)
-
+        # HACKY WAY to make step have -0.01 reward
+        # reward = -0.01
         if status is 'success':
             done = True
             reward = self._reward()

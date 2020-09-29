@@ -22,7 +22,7 @@ class InvarianceTest(RoomGridLevel):
     intentionally kept very simple.
     """
 
-    def __init__(self, seed=None, doors_per_side=3, instrs=None, start_room=0, args=None):
+    def __init__(self, seed=None, doors_per_side=3, instrs=None, start_room=0, args=None, steps_limit=50):
         self.doors_per_side=doors_per_side-1
         self.door_pos_lst = args['door_pos_lst']
         self.door_color_lst = args['door_color_lst']
@@ -32,6 +32,7 @@ class InvarianceTest(RoomGridLevel):
         self.width=args['width']
         self.height=args['height']
         self.start_room = start_room
+        self.steps_limit= steps_limit
         self.instrs = instrs
         super().__init__(
             num_rows=3,
@@ -218,10 +219,12 @@ class InvarianceTest(RoomGridLevel):
         # self.instrs.reset_verifier(self)
 
         # Compute the time step limit based on the maze size and instructions
-        nav_time_room = self.room_size ** 2
-        nav_time_maze = nav_time_room * self.num_rows * self.num_cols
-        num_navs = self.num_navs_needed(self.instrs)
-        self.max_steps = num_navs * nav_time_maze
+        # nav_time_room = self.room_size ** 2
+        # nav_time_maze = nav_time_room * self.num_rows * self.num_cols
+        # num_navs = self.num_navs_needed(self.instrs)
+        # self.max_steps = num_navs * nav_time_maze
+        self.max_steps= self.steps_limit
+
 
         return obs
 
@@ -241,7 +244,7 @@ class InvarianceTest(RoomGridLevel):
                 room_door_lock_lst = self.door_lock_lst[r][c]
                 for i in range(len(room_door_pos_lst)):
                     for j in range(len(room_door_pos_lst[i])):
-                        # print(room_door_color_lst[i][j])
+                        # print(room_door_color_lst[i][j]) 
                         # import pdb; pdb.set_trace()
                         obj, _ = self.add_door(c, r,i,  room_door_color_lst[i][j], locked=room_door_lock_lst[i][j], doorid_on_idx=j)
                 for idx,obj in enumerate(self.room_objects[r][c]):
@@ -268,7 +271,8 @@ class Level_InvarPrimATest(InvarianceTest):
         super().__init__(
             start_room = [0,1],
             instrs =  OpenInstrTwoRoom(ObjDesc('door', 'red'), room=[1,1]),
-            args=args)
+            args=args,
+            steps_limit=50)
 
 class Level_InvarPrimBTest(InvarianceTest):
     """
@@ -286,7 +290,8 @@ class Level_InvarPrimBTest(InvarianceTest):
         super().__init__(
             start_room = [1,0],
             instrs =  OpenInstrTwoRoom(ObjDesc('door', 'yellow'), room=[1,1]),
-            args=args)
+            args=args,
+            steps_limit=50)
 
 class Level_InvarPrimCTest(InvarianceTest):
     """
@@ -304,7 +309,8 @@ class Level_InvarPrimCTest(InvarianceTest):
         super().__init__(
             start_room = [1,1],
             instrs = GoToGoalInstr(ObjDesc('box', 'blue')),#, room=end_room),
-            args=args)
+            args=args,
+            steps_limit=50)
 
 class Level_InvarPrimCKeyTest(InvarianceTest):
     """
@@ -322,7 +328,8 @@ class Level_InvarPrimCKeyTest(InvarianceTest):
         super().__init__(
             start_room = [1,1],
             instrs =  OpenInstrTwoRoom(ObjDesc('door', 'blue'), room=[2,1]),
-            args=args)
+            args=args,
+            steps_limit=50)
 
 class Level_InvarPrimDKeyTest(InvarianceTest):
     """
@@ -340,7 +347,8 @@ class Level_InvarPrimDKeyTest(InvarianceTest):
         super().__init__(
             start_room = [1,1],
             instrs =  OpenInstrTwoRoom(ObjDesc('door', 'green'), room=[1,2]),
-            args=args)
+            args=args,
+            steps_limit=50)
 
 class Level_InvarPrimDTest(InvarianceTest):
     """
@@ -358,7 +366,8 @@ class Level_InvarPrimDTest(InvarianceTest):
         super().__init__(
             start_room = [1,1],
             instrs = GoToGoalInstr(ObjDesc('box', 'green')),#, room=end_room),
-            args=args)
+            args=args,
+            steps_limit=50)
 
 class Level_Invar1Test(InvarianceTest):
     """
@@ -376,7 +385,8 @@ class Level_Invar1Test(InvarianceTest):
         super().__init__(
             start_room = [0,1],
             instrs = GoToGoalInstr(ObjDesc('box', 'blue')),#, room=end_room),
-            args=args)
+            args=args,
+            steps_limit=50)
 
 class Level_Invar1KeyTest(InvarianceTest):
     """
@@ -394,7 +404,8 @@ class Level_Invar1KeyTest(InvarianceTest):
         super().__init__(
             start_room = [0,1],
             instrs =  OpenInstrTwoRoom(ObjDesc('door', 'blue'), room=[2,1]),
-            args=args)
+            args=args,
+            steps_limit=50)
 
 class Level_Invar2Test(InvarianceTest):
     """
@@ -412,7 +423,8 @@ class Level_Invar2Test(InvarianceTest):
         super().__init__(
             start_room = [1,0],
             instrs = GoToGoalInstr(ObjDesc('box', 'green')),#, room=end_room),
-            args=args)
+            args=args,
+            steps_limit=50)
 
 class Level_Invar2KeyTest(InvarianceTest):
     """
@@ -430,7 +442,8 @@ class Level_Invar2KeyTest(InvarianceTest):
         super().__init__(
             start_room = [1,0],
             instrs =  OpenInstrTwoRoom(ObjDesc('door', 'green'), room=[1,2]),
-            args=args)
+            args=args,
+            steps_limit=50)
 
 class Level_Parallel1Test(InvarianceTest):
     """
@@ -448,7 +461,8 @@ class Level_Parallel1Test(InvarianceTest):
         super().__init__(
             start_room = [0,1],
             instrs = GoToGoalInstr(ObjDesc('box', 'green')),#, room=end_room),
-            args=args)
+            args=args,
+            steps_limit=50)
 
 class Level_Parallel1KeyTest(InvarianceTest):
     """
@@ -466,7 +480,8 @@ class Level_Parallel1KeyTest(InvarianceTest):
         super().__init__(
             start_room = [0,1],
             instrs =  OpenInstrTwoRoom(ObjDesc('door', 'green'), room=[1,2]),
-            args=args)
+            args=args,
+            steps_limit=50)
 
 class Level_Parallel2Test(InvarianceTest):
     """
@@ -484,7 +499,8 @@ class Level_Parallel2Test(InvarianceTest):
         super().__init__(
             start_room = [1,0],
             instrs = GoToGoalInstr(ObjDesc('box', 'blue')),#, room=end_room),
-            args=args)
+            args=args,
+            steps_limit=50)
 
 class Level_Parallel2KeyTest(InvarianceTest):
     """
@@ -502,7 +518,8 @@ class Level_Parallel2KeyTest(InvarianceTest):
         super().__init__(
             start_room = [1,0],
             instrs =  OpenInstrTwoRoom(ObjDesc('door', 'blue'), room=[2,1]),
-            args=args)
+            args=args,
+            steps_limit=50)
 #
 # class Level_APrimeThreeRoomTest(HRLTransferThreeRoomTest):
 #     """

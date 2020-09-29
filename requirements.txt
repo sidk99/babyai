@@ -1,0 +1,12 @@
+pandas
+pyyaml
+ujson
+dill
+opencv-python
+gym[atari]
+Box2D
+imageio
+matplotlib
+mplcyberpunk
+gtimer
+ipdb
