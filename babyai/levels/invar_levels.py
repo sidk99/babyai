@@ -22,7 +22,7 @@ class InvarianceTest(RoomGridLevel):
     intentionally kept very simple.
     """
 
-    def __init__(self, seed=None, doors_per_side=3, instrs=None, start_room=0, args=None, steps_limit=50):
+    def __init__(self, seed=None, doors_per_side=3, instrs=None, start_room=0, args=None, steps_limit=50, step_reward=-0.005):
         self.doors_per_side=doors_per_side-1
         self.door_pos_lst = args['door_pos_lst']
         self.door_color_lst = args['door_color_lst']
@@ -33,6 +33,7 @@ class InvarianceTest(RoomGridLevel):
         self.height=args['height']
         self.start_room = start_room
         self.steps_limit= steps_limit
+        self.step_reward= step_reward
         self.instrs = instrs
         super().__init__(
             num_rows=3,
@@ -228,6 +229,21 @@ class InvarianceTest(RoomGridLevel):
 
         return obs
 
+    def step(self, action):
+        ''' To Be used by HRL Vickery code so avoid any other dependency issues
+        - returns obs in named Tuple
+        - with room num agent is in'''
+        # import pdb; pdb.set_trace()
+        obs, reward, done, info = super().step(action)
+        if not done and reward == 0: 
+            reward=self.step_reward
+        return obs, reward, done, info
+        
+    def _reward(self):
+        """
+        Compute the reward to be given upon success
+        """
+        return 1 
 
 
     def gen_mission(self):

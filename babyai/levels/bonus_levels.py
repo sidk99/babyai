@@ -3376,6 +3376,7 @@ class Level_BlueKeyBlueDoorThreeRoomTest(RoomGridLevel):
 
 
 
+
 class Level_BlueThreeRoomTest(RoomGridLevel):
     """
     Go to the red doorThree

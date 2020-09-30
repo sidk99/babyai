@@ -21,6 +21,7 @@ babyai/levels/hrl_transfer_levels.py
 babyai/levels/iclr19_levels.py
 babyai/levels/invar_levels.py
 babyai/levels/levelgen.py
+babyai/levels/proof_levels.py
 babyai/levels/test_levels.py
 babyai/levels/verifier.py
 babyai/utils/__init__.py

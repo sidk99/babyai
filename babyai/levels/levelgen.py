@@ -191,7 +191,8 @@ class RoomGridLevel(RoomGrid):
 
         # If we've successfully completed the mission
         status = self.instrs.verify(action)
-
+        # HACKY WAY to make step have -0.01 reward
+        # reward = -0.01
         if status is 'success':
             done = True
             reward = self._reward()
